@@ -1,0 +1,27 @@
+# Julia
+/strategic-jl/Manifest.toml
+/strategic-jl/**/.ipynb_checkpoints/
+/strategic-jl/docs/build/
+
+# Rust
+/strategic-rs/target/
+/strategic-rs/**/target/
+# Cargo.lock is committed: strategic-mcp is a binary, reproducible builds matter.
+
+# TypeScript
+/strategic-web/node_modules/
+/strategic-web/dist/
+/strategic-web/*.tsbuildinfo
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Strategic engine local state
+~/.strategic/
+/.strategic/
+
+# Private exploratory notes
+/discussion.md

@@ -1,0 +1,202 @@
+{
+  "suite": "Strategic Compliance Tests",
+  "version": "1.0.0",
+  "description": "Cross-language compliance suite. Every JGDL implementation (Julia, Rust, TypeScript) must produce the expected result for every case. Cases are skeletons — the jgdl blocks are to be filled in during Phase 0.",
+  "cases": [
+    {
+      "id": "ch02_market_entry",
+      "chapter": "Chapter 2",
+      "description": "Sequential entry game. Threat is not credible.",
+      "jgdl_ref": "../examples/ch02_market_entry.json",
+      "expected": {
+        "solver": "BackwardInduction",
+        "equilibrium_path": ["stay_out"],
+        "payoffs": { "entrant": 0, "incumbent": 5 },
+        "subgame_perfect": true
+      }
+    },
+    {
+      "id": "ch04_pd_oneshot",
+      "chapter": "Chapter 4",
+      "description": "One-shot Prisoner's Dilemma.",
+      "jgdl_ref": null,
+      "expected": {
+        "solver": "NashEquilibrium",
+        "equilibrium_profile": { "p1": "defect", "p2": "defect" }
+      }
+    },
+    {
+      "id": "ch04_pd_repeated_tft",
+      "chapter": "Chapter 4",
+      "description": "Repeated PD under TFT. Cooperation sustained.",
+      "jgdl_ref": null,
+      "expected": {
+        "long_run_profile": { "p1": "cooperate", "p2": "cooperate" }
+      }
+    },
+    {
+      "id": "ch05_commitment",
+      "chapter": "Chapter 5",
+      "description": "Commitment device alters payoff. Outcome shifts vs. baseline.",
+      "jgdl_ref": null,
+      "expected": {
+        "shifts_equilibrium": true
+      }
+    },
+    {
+      "id": "ch06_burned_bridge",
+      "chapter": "Chapter 6",
+      "description": "Burned bridge makes the threat credible.",
+      "jgdl_ref": "../examples/ch06_burned_bridge.json",
+      "expected": {
+        "solver": "BackwardInduction",
+        "available_actions_after_bridge_burn": {
+          "incumbent": ["fight"]
+        },
+        "threat_credible": true
+      }
+    },
+    {
+      "id": "ch07_matching_pennies",
+      "chapter": "Chapter 7",
+      "description": "Zero-sum matching pennies. Unique mixed equilibrium at 0.5/0.5.",
+      "jgdl_ref": null,
+      "expected": {
+        "solver": "NashEquilibrium",
+        "mixed_strategy": { "p1": [0.5, 0.5], "p2": [0.5, 0.5] }
+      }
+    },
+    {
+      "id": "ch08_brinkmanship",
+      "chapter": "Chapter 8",
+      "description": "Escalation carries stochastic catastrophic risk.",
+      "jgdl_ref": null,
+      "expected": {
+        "equilibrium_sensitive_to_risk": true
+      }
+    },
+    {
+      "id": "ch09_focal_point",
+      "chapter": "Chapter 9",
+      "description": "Coordination game with focal point.",
+      "jgdl_ref": null,
+      "expected": {
+        "selected_equilibrium": "focal"
+      }
+    },
+    {
+      "id": "ch10_condorcet",
+      "chapter": "Chapter 10",
+      "description": "Condorcet paradox in three-option voting.",
+      "jgdl_ref": null,
+      "expected": {
+        "cycle_detected": true
+      }
+    },
+    {
+      "id": "ch11_alternating_offers",
+      "chapter": "Chapter 11",
+      "description": "Rubinstein alternating-offers bargaining.",
+      "jgdl_ref": null,
+      "expected": {
+        "subgame_perfect_split_exists": true
+      }
+    },
+    {
+      "id": "ch12_tournament",
+      "chapter": "Chapter 12",
+      "description": "Relative-payoff incentive dominates absolute.",
+      "jgdl_ref": null,
+      "expected": {
+        "relative_payoff_dominates": true
+      }
+    },
+    {
+      "id": "ch13_bayesian_auction",
+      "chapter": "Chapter 13",
+      "description": "Bidder strategy depends on prior over opponent value.",
+      "jgdl_ref": null,
+      "expected": {
+        "strategy_depends_on_prior": true
+      }
+    },
+    {
+      "id": "composition_three_traits",
+      "chapter": "Composition",
+      "description": "Commitment + Brinkmanship + Bayesian stacked. Dispatch must resolve unambiguously.",
+      "jgdl_ref": null,
+      "expected": {
+        "dispatch_unambiguous": true,
+        "result_stable_under_trait_order_permutation": true
+      }
+    },
+    {
+      "id": "composition_sequential_mixed",
+      "chapter": "Composition",
+      "description": "Sequential structure + MixedStrategy trait. Information sets respected.",
+      "jgdl_ref": null,
+      "expected": {
+        "information_sets_respected": true
+      }
+    },
+    {
+      "id": "inverse_ranks_pd_over_coordination",
+      "chapter": "Inverse",
+      "description": "Given defection-heavy observations, inverse solver ranks PD hypothesis above coordination game.",
+      "jgdl_ref": null,
+      "observations": [],
+      "expected": {
+        "top_hypothesis_family": "PrisonersDilemma"
+      }
+    },
+    {
+      "id": "inverse_detects_payoff_shift",
+      "chapter": "Inverse",
+      "description": "Mid-stream behavioral change flagged as payoff-change hypothesis.",
+      "jgdl_ref": null,
+      "observations": [],
+      "expected": {
+        "top_explanation": "objective_function_changed"
+      }
+    },
+    {
+      "id": "antifragile_new_player",
+      "chapter": "Antifragile",
+      "description": "Actions attributable to none of the known players trigger player discovery.",
+      "jgdl_ref": null,
+      "observations": [],
+      "expected": {
+        "surprise_detected": true,
+        "new_player_discovered": true
+      }
+    },
+    {
+      "id": "antifragile_latent_confounder",
+      "chapter": "Antifragile",
+      "description": "Correlated actions without direct causation flag a latent confounder.",
+      "jgdl_ref": null,
+      "observations": [],
+      "expected": {
+        "latent_nodes_detected_count": 1
+      }
+    },
+    {
+      "id": "antifragile_hedge_activation",
+      "chapter": "Antifragile",
+      "description": "Surprise event triggers hedge activation per its trigger condition.",
+      "jgdl_ref": null,
+      "expected": {
+        "hedge_activated": true
+      }
+    },
+    {
+      "id": "provenance_integrity",
+      "chapter": "Cross-cutting",
+      "description": "Every Solution returned carries a non-empty provenance chain.",
+      "jgdl_ref": null,
+      "expected": {
+        "provenance_chain_non_empty": true
+      }
+    }
+  ]
+}

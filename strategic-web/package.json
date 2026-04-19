@@ -1,0 +1,25 @@
+{
+  "name": "strategic-web",
+  "version": "0.1.0-dev",
+  "description": "Browser composer for strategic worlds. Reads and writes JGDL; renders provenance graphs.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Folarin Shonibare <folarinshonibare@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omofolarin/strategic-thinking.git",
+    "directory": "strategic-web"
+  },
+  "homepage": "https://github.com/omofolarin/strategic-thinking#readme",
+  "bugs": "https://github.com/omofolarin/strategic-thinking/issues",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'tests come online in Phase 6' && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}

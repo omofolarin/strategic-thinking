@@ -1,0 +1,23 @@
+[package]
+name = "strategic-mcp"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Model Context Protocol server. Exposes the toolkit to LLMs with provenance-grounded responses."
+
+[[bin]]
+name = "strategic-mcp"
+path = "src/main.rs"
+
+[dependencies]
+strategic-core = { path = "../strategic-core" }
+strategic-solver = { path = "../strategic-solver" }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+axum.workspace = true
+tower-http.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust — cargo check & test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: strategic-rs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: strategic-rs
+      - run: cargo check --workspace --all-targets
+      - run: cargo test --workspace
+
+  julia:
+    name: Julia — Pkg.test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+        with:
+          project: strategic-jl
+      - uses: julia-actions/julia-runtest@v1
+        with:
+          project: strategic-jl
+
+  typescript:
+    name: TypeScript — typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: strategic-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npm run typecheck
+
+  jgdl-schema:
+    name: JGDL schema — validate JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g ajv-cli
+      - name: Validate examples against schema
+        run: |
+          for f in jgdl/examples/**/*.json jgdl/examples/*.json; do
+            [ -f "$f" ] && ajv validate -s jgdl/schema/v1.0.0.schema.json -d "$f" --spec=draft2020 || true
+          done

@@ -1,0 +1,15 @@
+[package]
+name = "strategic-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Shared JGDL types, schema validation, content addressing. Mirrors Strategic.jl semantics."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
+jsonschema.workspace = true

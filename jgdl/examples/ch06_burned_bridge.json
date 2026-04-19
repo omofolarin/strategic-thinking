@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "Burned Bridge (Chapter 6)",
+      "description": "Market entry game with Incumbent's retreat option removed, making the fight threat credible.",
+      "chapter_references": ["Chapter 2", "Chapter 6"]
+    },
+    "players": [
+      { "id": "entrant", "name": "Entrant", "type": "rational" },
+      { "id": "incumbent", "name": "Incumbent", "type": "rational" }
+    ],
+    "actions": [
+      { "id": "enter", "name": "Enter", "player_id": "entrant" },
+      { "id": "stay_out", "name": "Stay Out", "player_id": "entrant" },
+      { "id": "fight", "name": "Fight", "player_id": "incumbent" },
+      { "id": "accommodate", "name": "Accommodate", "player_id": "incumbent" }
+    ],
+    "structure": {
+      "type": "sequential",
+      "order": ["entrant", "incumbent"]
+    },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "enter.fight": { "entrant": -1, "incumbent": 1 },
+        "enter.accommodate": { "entrant": 3, "incumbent": 4 },
+        "stay_out.*": { "entrant": 0, "incumbent": 5 }
+      }
+    },
+    "traits": [
+      {
+        "id": "incumbent_commits_to_fight",
+        "type": "BurnedBridge",
+        "chapter": "Chapter 6",
+        "applies_to": "action",
+        "parameters": {
+          "player_id": "incumbent",
+          "forbidden_action": "accommodate",
+          "rationale": "Incumbent has destroyed the capacity to accommodate (e.g. built dedicated price-war infrastructure)."
+        }
+      }
+    ],
+    "initial_state": {
+      "variables": {},
+      "history": [],
+      "current_player": "entrant",
+      "round": 0
+    },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 2",
+        "rationale": "Base sequential entry game.",
+        "parent_id": "",
+        "timestamp": "2026-04-19T00:00:00Z",
+        "author": "user"
+      },
+      {
+        "operation": "applied_BurnedBridge",
+        "chapter_ref": "Chapter 6",
+        "theoretical_origin": "Schelling, The Strategy of Conflict, Part II",
+        "rationale": "Removing the accommodate option makes the fight threat credible. Expected SPE shifts from (StayOut, *) to (Enter, Fight) if payoffs supported it, or reinforces StayOut.",
+        "parent_id": "",
+        "timestamp": "2026-04-19T00:00:01Z",
+        "author": "user"
+      }
+    ]
+  }
+}

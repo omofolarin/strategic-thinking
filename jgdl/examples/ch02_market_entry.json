@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "Market Entry (Chapter 2)",
+      "description": "Entrant moves first. Incumbent chooses Fight or Accommodate.",
+      "chapter_references": ["Chapter 2"]
+    },
+    "players": [
+      { "id": "entrant", "name": "Entrant", "type": "rational" },
+      { "id": "incumbent", "name": "Incumbent", "type": "rational" }
+    ],
+    "actions": [
+      { "id": "enter", "name": "Enter", "player_id": "entrant" },
+      { "id": "stay_out", "name": "Stay Out", "player_id": "entrant" },
+      { "id": "fight", "name": "Fight", "player_id": "incumbent" },
+      { "id": "accommodate", "name": "Accommodate", "player_id": "incumbent" }
+    ],
+    "structure": {
+      "type": "sequential",
+      "order": ["entrant", "incumbent"]
+    },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "enter.fight": { "entrant": -1, "incumbent": 1 },
+        "enter.accommodate": { "entrant": 3, "incumbent": 4 },
+        "stay_out.*": { "entrant": 0, "incumbent": 5 }
+      }
+    },
+    "traits": [],
+    "initial_state": {
+      "variables": {},
+      "history": [],
+      "current_player": "entrant",
+      "round": 0
+    },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 2",
+        "rationale": "Canonical sequential entry game. Expected SPE: StayOut (threat not credible).",
+        "parent_id": "",
+        "timestamp": "2026-04-19T00:00:00Z",
+        "author": "user"
+      }
+    ]
+  }
+}

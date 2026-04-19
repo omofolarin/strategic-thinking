@@ -1,0 +1,13 @@
+[package]
+name = "strategic-solver"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Fast forward solvers. Validates output against Julia oracle via shared compliance suite."
+
+[dependencies]
+strategic-core = { path = "../strategic-core" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/strategic-core",
+    "crates/strategic-solver",
+    "crates/strategic-mcp",
+    "crates/strategic-wasm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Folarin Shonibare <folarinshonibare@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/omofolarin/strategic-thinking"
+homepage = "https://github.com/omofolarin/strategic-thinking"
+
+[workspace.dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+sha2 = "0.11.0"
+uuid = { version = "1.23.1", features = ["v4", "serde"] }
+chrono = { version = "0.4.44", features = ["serde"] }
+thiserror = "2.0.18"
+jsonschema = "0.46.1"
+tokio = { version = "1.52.1", features = ["macros", "rt-multi-thread"] }
+axum = "0.8.9"
+tower-http = { version = "0.6.8", features = ["cors"] }
+wasm-bindgen = "0.2.118"

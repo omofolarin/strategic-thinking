@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "Chicken (Tale)",
+      "description": "Two drivers headed for a collision. Swerve loses face; crash is mutually catastrophic. Canonical tale showing how commitment + brinkmanship shift equilibria.",
+      "chapter_references": ["Chapter 1", "Chapter 5", "Chapter 8"]
+    },
+    "players": [
+      { "id": "driver_a", "name": "Driver A", "type": "rational" },
+      { "id": "driver_b", "name": "Driver B", "type": "rational" }
+    ],
+    "actions": [
+      { "id": "swerve_a", "name": "Swerve", "player_id": "driver_a" },
+      { "id": "straight_a", "name": "Straight", "player_id": "driver_a" },
+      { "id": "swerve_b", "name": "Swerve", "player_id": "driver_b" },
+      { "id": "straight_b", "name": "Straight", "player_id": "driver_b" }
+    ],
+    "structure": {
+      "type": "simultaneous"
+    },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "swerve_a.swerve_b": { "driver_a": 0, "driver_b": 0 },
+        "swerve_a.straight_b": { "driver_a": -1, "driver_b": 1 },
+        "straight_a.swerve_b": { "driver_a": 1, "driver_b": -1 },
+        "straight_a.straight_b": { "driver_a": -100, "driver_b": -100 }
+      }
+    },
+    "traits": [],
+    "initial_state": {
+      "variables": {},
+      "history": [],
+      "current_player": null,
+      "round": 0
+    },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 1",
+        "theoretical_origin": "Schelling, The Strategy of Conflict (1960), Ch. 7",
+        "rationale": "Canonical tale. Two pure Nash equilibria (Straight/Swerve and Swerve/Straight) plus a mixed equilibrium. Demonstrates why commitment (Ch 5) or credible irrationality (Ch 7) matters.",
+        "parent_id": "",
+        "timestamp": "2026-04-19T00:00:00Z",
+        "author": "user"
+      }
+    ]
+  }
+}
