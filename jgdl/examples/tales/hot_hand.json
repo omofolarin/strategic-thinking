@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "The Hot Hand",
+      "description": "Shooter on a streak vs defender. Rational play is mixed regardless of streak history — anticipating the anticipator.",
+      "chapter_references": ["Chapter 1", "Chapter 2"]
+    },
+    "players": [
+      { "id": "shooter",  "name": "Shooter",  "type": "rational" },
+      { "id": "defender", "name": "Defender", "type": "rational" }
+    ],
+    "actions": [
+      { "id": "shoot_left",   "name": "Shoot Left",   "player_id": "shooter" },
+      { "id": "shoot_right",  "name": "Shoot Right",  "player_id": "shooter" },
+      { "id": "defend_left",  "name": "Defend Left",  "player_id": "defender" },
+      { "id": "defend_right", "name": "Defend Right", "player_id": "defender" }
+    ],
+    "structure": { "type": "simultaneous" },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "shoot_left.defend_left":   { "shooter": 0, "defender": 1 },
+        "shoot_left.defend_right":  { "shooter": 1, "defender": 0 },
+        "shoot_right.defend_left":  { "shooter": 1, "defender": 0 },
+        "shoot_right.defend_right": { "shooter": 0, "defender": 1 }
+      }
+    },
+    "traits": [],
+    "initial_state": { "variables": { "streak": 3 }, "history": [], "current_player": null, "round": 0 },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 1",
+        "theoretical_origin": "Dixit & Nalebuff, Thinking Strategically (1991), Chapter 1",
+        "rationale": "Zero-sum matching game. Unique Nash equilibrium is 50/50 mix for both players. Streak is irrelevant to rational play — the tale teaches that anticipating the anticipator collapses to the mixed equilibrium.",
+        "parent_id": "",
+        "timestamp": "2026-04-23T00:00:00Z",
+        "author": "user"
+      }
+    ]
+  }
+}

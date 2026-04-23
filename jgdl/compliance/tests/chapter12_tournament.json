@@ -1,0 +1,65 @@
+{
+  "id": "ch12_tournament",
+  "chapter": "Chapter 12",
+  "concept": "Tournament Incentives — Relative Payoff Dominates",
+  "description": "Two workers compete for a promotion. Relative rank determines reward. Effort choice depends on opponent's effort, not absolute output.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Tournament Incentives",
+        "description": "Workers choose effort; higher effort wins prize. Relative payoff dominates absolute.",
+        "chapter_references": ["Chapter 12"]
+      },
+      "players": [
+        { "id": "worker1", "name": "Worker 1", "type": "rational" },
+        { "id": "worker2", "name": "Worker 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "high_effort_1", "name": "High Effort", "player_id": "worker1" },
+        { "id": "low_effort_1",  "name": "Low Effort",  "player_id": "worker1" },
+        { "id": "high_effort_2", "name": "High Effort", "player_id": "worker2" },
+        { "id": "low_effort_2",  "name": "Low Effort",  "player_id": "worker2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "high_effort_1.high_effort_2": { "worker1":  5, "worker2":  5 },
+          "high_effort_1.low_effort_2":  { "worker1": 20, "worker2": -5 },
+          "low_effort_1.high_effort_2":  { "worker1": -5, "worker2": 20 },
+          "low_effort_1.low_effort_2":   { "worker1": 10, "worker2": 10 }
+        }
+      },
+      "traits": [
+        {
+          "id": "tournament_prize",
+          "type": "TournamentIncentive",
+          "chapter": "Chapter 12",
+          "applies_to": "game",
+          "parameters": { "prize": 25, "effort_cost": 10, "rule": "highest_effort_wins" }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 12",
+          "theoretical_origin": "Lazear & Rosen, Rank-Order Tournaments as Optimum Labor Contracts (1981)",
+          "rationale": "Nash equilibrium: both exert high effort (dominant strategy given relative payoff structure). Absolute output irrelevant; rank determines reward.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "IteratedDominance",
+    "nash_equilibrium": { "worker1": "high_effort_1", "worker2": "high_effort_2" },
+    "payoffs": { "worker1": 5, "worker2": 5 },
+    "relative_payoff_dominates": true,
+    "rationale_must_cite": ["Chapter 12"]
+  }
+}

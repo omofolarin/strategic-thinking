@@ -1,6 +1,6 @@
 module Strategic
 
-using JSON, SHA, Dates, UUIDs, Graphs, Distributions
+using JSON, JSONSchema, SHA, Dates, UUIDs, Graphs, Distributions
 
 include("core/types.jl")
 include("core/provenance.jl")
@@ -55,7 +55,7 @@ export
     # Solvers
     BackwardInduction, NashEquilibrium, solve, simulate,
     # JGDL
-    to_jgdl, from_jgdl, world_id,
+    to_jgdl, from_jgdl, world_id, validate_jgdl, ValidationError,
     # DSL
     @strategic
 

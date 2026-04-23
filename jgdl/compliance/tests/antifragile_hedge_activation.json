@@ -1,0 +1,72 @@
+{
+  "id": "antifragile_hedge_activation",
+  "chapter": "Antifragile",
+  "concept": "Hedge Activation on Surprise Event",
+  "description": "A surprise event (unexpected defection) triggers a pre-registered hedge. Tests hedge activation logic and provenance recording.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Hedge Activation",
+        "description": "PD world with a hedge that activates on unexpected defection.",
+        "chapter_references": ["Chapter 4"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "cooperate_1", "name": "Cooperate", "player_id": "p1" },
+        { "id": "defect_1",    "name": "Defect",    "player_id": "p1" },
+        { "id": "cooperate_2", "name": "Cooperate", "player_id": "p2" },
+        { "id": "defect_2",    "name": "Defect",    "player_id": "p2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "cooperate_1.cooperate_2": { "p1": 3, "p2": 3 },
+          "defect_1.cooperate_2":    { "p1": 5, "p2": 0 },
+          "cooperate_1.defect_2":    { "p1": 0, "p2": 5 },
+          "defect_1.defect_2":       { "p1": 1, "p2": 1 }
+        }
+      },
+      "traits": [],
+      "hedges": [
+        {
+          "id": "defection_hedge",
+          "trigger": "p2_action == defect_2 AND prior_rounds_cooperative >= 3",
+          "payoff_profile": { "p1": 2 },
+          "cost": 0.5,
+          "optionality_value": 1.5,
+          "chapter_reference": "Chapter 4"
+        }
+      ],
+      "initial_state": {
+        "variables": { "prior_rounds_cooperative": 3 },
+        "history": [],
+        "current_player": null,
+        "round": 4
+      },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 4",
+          "rationale": "Antifragile case: hedge registered against surprise defection after cooperative history.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "AntifragileSolver",
+    "hedge_activated": true,
+    "trigger_condition_met": true,
+    "hedge_id": "defection_hedge",
+    "provenance_records_activation": true,
+    "rationale_must_cite": ["Chapter 4"]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "ch11_alternating_offers",
+  "chapter": "Chapter 11",
+  "concept": "Bargaining — Rubinstein Alternating Offers",
+  "description": "Two-period alternating-offers with discount factor 0.8. SPE split: proposer ~55.6, responder ~44.4.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Alternating Offers Bargaining",
+        "description": "Rubinstein two-period bargaining over surplus=100.",
+        "chapter_references": ["Chapter 11"]
+      },
+      "players": [
+        { "id": "proposer",  "name": "Proposer",  "type": "rational" },
+        { "id": "responder", "name": "Responder", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "offer_spe",   "name": "Offer SPE split", "player_id": "proposer" },
+        { "id": "offer_greedy","name": "Offer 80/20",     "player_id": "proposer" },
+        { "id": "accept",      "name": "Accept",          "player_id": "responder" },
+        { "id": "reject",      "name": "Reject",          "player_id": "responder" }
+      ],
+      "structure": {
+        "type": "sequential",
+        "order": ["proposer", "responder"],
+        "discount_factor": 0.8
+      },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "offer_spe.accept":    { "proposer": 55.6, "responder": 44.4 },
+          "offer_spe.reject":    { "proposer":  0,   "responder":  0   },
+          "offer_greedy.accept": { "proposer": 80,   "responder": 20   },
+          "offer_greedy.reject": { "proposer":  0,   "responder":  0   }
+        }
+      },
+      "traits": [
+        {
+          "id": "rubinstein_protocol",
+          "type": "BargainingProtocol",
+          "chapter": "Chapter 11",
+          "applies_to": "game",
+          "parameters": { "discount_factor": 0.8, "periods": 2, "protocol": "alternating_offers" }
+        }
+      ],
+      "initial_state": { "variables": { "surplus": 100 }, "history": [], "current_player": "proposer", "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 11",
+          "theoretical_origin": "Rubinstein, Perfect Equilibrium in a Bargaining Model (1982)",
+          "rationale": "SPE: proposer=1/(1+0.8)=55.6, responder=0.8/(1+0.8)=44.4. Responder accepts any offer >= continuation value.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "BackwardInduction",
+    "spe_split": { "proposer": 55.6, "responder": 44.4 },
+    "discount_factor": 0.8,
+    "responder_accepts_at_spe": true,
+    "rationale_must_cite": ["Chapter 11"]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "id": "ch05_commitment",
+  "chapter": "Chapter 5",
+  "concept": "Strategic Moves — Commitment",
+  "description": "Leader commits to High output before Follower decides. Commitment shifts equilibrium vs. simultaneous play.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Commitment Device — Stackelberg",
+        "description": "Leader commits to High; Follower best-responds with Low.",
+        "chapter_references": ["Chapter 5"]
+      },
+      "players": [
+        { "id": "leader",   "name": "Leader",   "type": "rational" },
+        { "id": "follower", "name": "Follower", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "high_l", "name": "High", "player_id": "leader" },
+        { "id": "low_l",  "name": "Low",  "player_id": "leader" },
+        { "id": "high_f", "name": "High", "player_id": "follower" },
+        { "id": "low_f",  "name": "Low",  "player_id": "follower" }
+      ],
+      "structure": { "type": "sequential", "order": ["leader", "follower"] },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "high_l.high_f": { "leader": 2, "follower": 2 },
+          "high_l.low_f":  { "leader": 5, "follower": 1 },
+          "low_l.high_f":  { "leader": 1, "follower": 5 },
+          "low_l.low_f":   { "leader": 3, "follower": 3 }
+        }
+      },
+      "traits": [
+        {
+          "id": "leader_commits_high",
+          "type": "Commitment",
+          "chapter": "Chapter 5",
+          "applies_to": "player",
+          "parameters": {
+            "player_id": "leader",
+            "committed_action": "high_l",
+            "rationale": "Leader publicly and irreversibly announces High before Follower moves."
+          }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": "leader", "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 5",
+          "rationale": "Baseline sequential game.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        },
+        {
+          "operation": "applied_trait",
+          "trait_type": "Commitment",
+          "chapter_ref": "Chapter 5",
+          "theoretical_origin": "Dixit & Nalebuff, Thinking Strategically (1991), Chapter 5",
+          "rationale": "Commitment forces Leader to High; Follower best-responds Low. Leader payoff=5 > simultaneous Nash=3.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:01Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "BackwardInduction",
+    "equilibrium_path": ["high_l", "low_f"],
+    "payoffs": { "leader": 5, "follower": 1 },
+    "commitment_improves_leader_payoff": true,
+    "rationale_must_cite": ["Chapter 5"]
+  }
+}

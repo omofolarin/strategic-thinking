@@ -1,0 +1,64 @@
+{
+  "id": "ch13_bayesian_auction",
+  "chapter": "Chapter 13",
+  "concept": "Bayesian Reasoning — First-Price Auction",
+  "description": "Two bidders with private values drawn from Uniform[0,1]. Bayesian Nash equilibrium: bid half your value.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "First-Price Sealed-Bid Auction",
+        "description": "Two bidders, private values ~ Uniform[0,1]. BNE: bid = value/2.",
+        "chapter_references": ["Chapter 13"]
+      },
+      "players": [
+        { "id": "bidder1", "name": "Bidder 1", "type": "rational" },
+        { "id": "bidder2", "name": "Bidder 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "bid_half_1",  "name": "Bid v/2",  "player_id": "bidder1" },
+        { "id": "bid_full_1",  "name": "Bid v",    "player_id": "bidder1" },
+        { "id": "bid_half_2",  "name": "Bid v/2",  "player_id": "bidder2" },
+        { "id": "bid_full_2",  "name": "Bid v",    "player_id": "bidder2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "function",
+        "function": "winner gets value - bid; loser gets 0"
+      },
+      "traits": [
+        {
+          "id": "bayesian_private_values",
+          "type": "BayesianBelief",
+          "chapter": "Chapter 13",
+          "applies_to": "game",
+          "parameters": {
+            "value_distribution": "Uniform[0,1]",
+            "information": "private",
+            "equilibrium_strategy": "bid = value / 2"
+          }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 13",
+          "theoretical_origin": "Vickrey, Counterspeculation, Auctions, and Competitive Sealed Tenders (1961)",
+          "rationale": "BNE for first-price auction with uniform priors: each bidder bids half their value. Bidding full value yields zero surplus; bidding less risks losing.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "BayesianNashSolver",
+    "bne_strategy": "bid = value / 2",
+    "prior_distribution": "Uniform[0,1]",
+    "bidding_full_value_is_dominated": true,
+    "rationale_must_cite": ["Chapter 13"]
+  }
+}

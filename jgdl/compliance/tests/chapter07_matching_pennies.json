@@ -1,0 +1,60 @@
+{
+  "id": "ch07_matching_pennies",
+  "chapter": "Chapter 7",
+  "concept": "Unpredictability — Mixed Strategy Equilibrium",
+  "description": "Zero-sum matching pennies. No pure Nash equilibrium. Unique mixed equilibrium is 50/50.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Matching Pennies",
+        "description": "Zero-sum game. Row wins if pennies match; Column wins if they differ.",
+        "chapter_references": ["Chapter 7"]
+      },
+      "players": [
+        { "id": "row", "name": "Row",    "type": "rational" },
+        { "id": "col", "name": "Column", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "heads_r", "name": "Heads", "player_id": "row" },
+        { "id": "tails_r", "name": "Tails", "player_id": "row" },
+        { "id": "heads_c", "name": "Heads", "player_id": "col" },
+        { "id": "tails_c", "name": "Tails", "player_id": "col" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "heads_r.heads_c": { "row":  1, "col": -1 },
+          "heads_r.tails_c": { "row": -1, "col":  1 },
+          "tails_r.heads_c": { "row": -1, "col":  1 },
+          "tails_r.tails_c": { "row":  1, "col": -1 }
+        }
+      },
+      "traits": [],
+      "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 7",
+          "theoretical_origin": "Von Neumann & Morgenstern, Theory of Games and Economic Behavior (1944)",
+          "rationale": "No pure Nash. Mixed equilibrium: each player 50/50. Expected payoff = 0 for both.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "NashEquilibrium",
+    "pure_nash_exists": false,
+    "mixed_equilibrium": {
+      "row": { "heads_r": 0.5, "tails_r": 0.5 },
+      "col": { "heads_c": 0.5, "tails_c": 0.5 }
+    },
+    "expected_payoffs": { "row": 0.0, "col": 0.0 },
+    "rationale_must_cite": ["Chapter 7"]
+  }
+}

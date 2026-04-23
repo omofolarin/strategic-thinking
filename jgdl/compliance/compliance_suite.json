@@ -1,10 +1,10 @@
 {
   "suite": "Strategic Compliance Tests",
   "version": "1.0.0",
-  "description": "Cross-language compliance suite. Every JGDL implementation (Julia, Rust, TypeScript) must produce the expected result for every authored case. Skeleton cases are placeholders awaiting Phase 1–3 implementation.",
+  "description": "Cross-language compliance suite. Every JGDL implementation (Julia, Rust, TypeScript) must produce the expected result for every authored case.",
   "convention": {
     "authored_cases": "Individual JSON files under tests/. Each contains an embedded jgdl block + expected block.",
-    "skeleton_cases": "Inline entries with jgdl_ref = null. Become authored when their phase lands."
+    "skeleton_cases": "Inline entries with test_path = null. Become authored when their phase lands."
   },
   "cases": [
     {
@@ -30,94 +30,101 @@
     },
     {
       "id": "ch04_pd_repeated_tft",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter04_tft.json",
       "chapter": "Chapter 4",
       "description": "Repeated PD under Tit-for-Tat. Cooperation sustained at high discount factor."
     },
     {
       "id": "ch05_commitment",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter05_commitment.json",
       "chapter": "Chapter 5",
       "description": "Commitment device alters payoff; outcome shifts vs. baseline."
     },
     {
       "id": "ch07_matching_pennies",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter07_matching_pennies.json",
       "chapter": "Chapter 7",
       "description": "Zero-sum matching pennies. Unique mixed equilibrium at 0.5/0.5."
     },
     {
       "id": "ch08_brinkmanship",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter08_brinkmanship.json",
       "chapter": "Chapter 8",
       "description": "Escalation carries stochastic catastrophic risk."
     },
     {
       "id": "ch09_focal_point",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter09_focal_point.json",
       "chapter": "Chapter 9",
       "description": "Coordination with focal point."
     },
     {
       "id": "ch10_condorcet",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter10_condorcet.json",
       "chapter": "Chapter 10",
       "description": "Condorcet paradox in three-option voting."
     },
     {
       "id": "ch11_alternating_offers",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter11_bargaining.json",
       "chapter": "Chapter 11",
       "description": "Rubinstein alternating-offers bargaining."
     },
     {
       "id": "ch12_tournament",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter12_tournament.json",
       "chapter": "Chapter 12",
       "description": "Relative-payoff incentive dominates absolute."
     },
     {
       "id": "ch13_bayesian_auction",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/chapter13_bayesian_auction.json",
       "chapter": "Chapter 13",
       "description": "Bidder strategy depends on prior over opponent value."
     },
     {
       "id": "composition_three_traits",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/composition_three_traits.json",
       "chapter": "Composition",
       "description": "Commitment + Brinkmanship + Bayesian stacked. Dispatch must resolve unambiguously."
     },
     {
       "id": "composition_sequential_mixed",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/composition_sequential_mixed.json",
       "chapter": "Composition",
       "description": "Sequential + MixedStrategy. Information sets respected."
     },
     {
       "id": "inverse_ranks_pd_over_coordination",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/inverse_ranks_pd.json",
       "chapter": "Inverse",
       "description": "Defection-heavy observations rank PD above coordination."
     },
     {
       "id": "inverse_detects_payoff_shift",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/inverse_payoff_shift.json",
       "chapter": "Inverse",
       "description": "Mid-stream behavioral change flagged as objective-function-changed."
+    },
+    {
+      "id": "antifragile_hedge_activation",
+      "status": "authored",
+      "test_path": "tests/antifragile_hedge_activation.json",
+      "chapter": "Antifragile",
+      "description": "Surprise event triggers hedge per its trigger condition."
     },
     {
       "id": "antifragile_new_player",
@@ -132,13 +139,6 @@
       "test_path": null,
       "chapter": "Antifragile",
       "description": "Correlated actions without direct causation flag a latent confounder."
-    },
-    {
-      "id": "antifragile_hedge_activation",
-      "status": "skeleton",
-      "test_path": null,
-      "chapter": "Antifragile",
-      "description": "Surprise event triggers hedge per its trigger condition."
     },
     {
       "id": "provenance_integrity",

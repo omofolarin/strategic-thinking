@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "The Elevator Dilemma",
+      "description": "Two people approach an elevator from opposite sides. Without communication, each must decide which button to press. Focal points resolve the coordination problem.",
+      "chapter_references": ["Chapter 1", "Chapter 9"]
+    },
+    "players": [
+      { "id": "alice", "name": "Alice", "type": "rational" },
+      { "id": "bob",   "name": "Bob",   "type": "rational" }
+    ],
+    "actions": [
+      { "id": "press_up_a",   "name": "Press Up",   "player_id": "alice" },
+      { "id": "press_down_a", "name": "Press Down", "player_id": "alice" },
+      { "id": "press_up_b",   "name": "Press Up",   "player_id": "bob" },
+      { "id": "press_down_b", "name": "Press Down", "player_id": "bob" }
+    ],
+    "structure": { "type": "simultaneous" },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "press_up_a.press_up_b":     { "alice": 1, "bob": 1 },
+        "press_down_a.press_down_b": { "alice": 1, "bob": 1 },
+        "press_up_a.press_down_b":   { "alice": 0, "bob": 0 },
+        "press_down_a.press_up_b":   { "alice": 0, "bob": 0 }
+      }
+    },
+    "traits": [],
+    "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 1",
+        "theoretical_origin": "Schelling, The Strategy of Conflict (1960), Chapter 3 — focal points",
+        "rationale": "Pure coordination game with two Nash equilibria. Without communication, a focal point (salient convention) selects one. Illustrates Chapter 9 coordination devices.",
+        "parent_id": "",
+        "timestamp": "2026-04-23T00:00:00Z",
+        "author": "user"
+      }
+    ]
+  }
+}

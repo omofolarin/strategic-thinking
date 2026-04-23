@@ -1,0 +1,75 @@
+{
+  "id": "composition_sequential_mixed",
+  "chapter": "Composition",
+  "concept": "Sequential + MixedStrategy — information sets respected",
+  "description": "Sequential game where the second mover applies a MixedStrategy trait. Information sets must be preserved through trait dispatch.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Sequential + Mixed Strategy",
+        "description": "Entrant moves first; Incumbent randomises between Fight and Accommodate.",
+        "chapter_references": ["Chapter 2", "Chapter 7"]
+      },
+      "players": [
+        { "id": "entrant",   "name": "Entrant",   "type": "rational" },
+        { "id": "incumbent", "name": "Incumbent", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "enter",       "name": "Enter",       "player_id": "entrant" },
+        { "id": "stay_out",    "name": "Stay Out",    "player_id": "entrant" },
+        { "id": "fight",       "name": "Fight",       "player_id": "incumbent" },
+        { "id": "accommodate", "name": "Accommodate", "player_id": "incumbent" }
+      ],
+      "structure": { "type": "sequential", "order": ["entrant", "incumbent"] },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "enter.fight":         { "entrant": -10, "incumbent": -20 },
+          "enter.accommodate":   { "entrant":  40, "incumbent":  30 },
+          "stay_out.*":          { "entrant":   0, "incumbent": 100 }
+        }
+      },
+      "traits": [
+        {
+          "id": "incumbent_mixes",
+          "type": "MixedStrategy",
+          "chapter": "Chapter 7",
+          "applies_to": "player",
+          "parameters": {
+            "player_id": "incumbent",
+            "distribution": { "fight": 0.3, "accommodate": 0.7 }
+          }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": "entrant", "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 2",
+          "rationale": "Baseline sequential entry game.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        },
+        {
+          "operation": "applied_trait",
+          "trait_type": "MixedStrategy",
+          "chapter_ref": "Chapter 7",
+          "rationale": "Incumbent randomises 30/70. Entrant's expected payoff from Enter = 0.3*(-10)+0.7*40 = 25 > 0. Entrant enters.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:01Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "BackwardInduction",
+    "information_sets_preserved": true,
+    "entrant_expected_payoff_from_enter": 25.0,
+    "equilibrium_path": ["enter"],
+    "rationale_must_cite": ["Chapter 2", "Chapter 7"]
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "ch09_focal_point",
+  "chapter": "Chapter 9",
+  "concept": "Coordination — Focal Point Selection",
+  "description": "Pure coordination game with two Nash equilibria. CoordinationDevice trait selects the focal one.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Coordination with Focal Point",
+        "description": "Two players coordinate on one of two options. Option A is focal.",
+        "chapter_references": ["Chapter 9"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "option_a_1", "name": "Option A", "player_id": "p1" },
+        { "id": "option_b_1", "name": "Option B", "player_id": "p1" },
+        { "id": "option_a_2", "name": "Option A", "player_id": "p2" },
+        { "id": "option_b_2", "name": "Option B", "player_id": "p2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "option_a_1.option_a_2": { "p1": 1, "p2": 1 },
+          "option_b_1.option_b_2": { "p1": 1, "p2": 1 },
+          "option_a_1.option_b_2": { "p1": 0, "p2": 0 },
+          "option_b_1.option_a_2": { "p1": 0, "p2": 0 }
+        }
+      },
+      "traits": [
+        {
+          "id": "focal_option_a",
+          "type": "CoordinationDevice",
+          "chapter": "Chapter 9",
+          "applies_to": "game",
+          "parameters": {
+            "focal_action": "option_a",
+            "salience": "Option A is the default, printed first on all materials."
+          }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 9",
+          "theoretical_origin": "Schelling, The Strategy of Conflict (1960), Chapter 3",
+          "rationale": "Without focal point both (A,A) and (B,B) are Nash. CoordinationDevice selects (A,A).",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "NashEquilibrium",
+    "nash_equilibria_count": 2,
+    "focal_equilibrium": { "p1": "option_a_1", "p2": "option_a_2" },
+    "payoffs": { "p1": 1, "p2": 1 },
+    "rationale_must_cite": ["Chapter 9"]
+  }
+}

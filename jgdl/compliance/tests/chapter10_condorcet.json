@@ -1,0 +1,77 @@
+{
+  "id": "ch10_condorcet",
+  "chapter": "Chapter 10",
+  "concept": "Voting — Condorcet Paradox",
+  "description": "Three voters, three options. Majority preferences cycle A>B>C>A. No Condorcet winner.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Condorcet Paradox",
+        "description": "Cyclical majority preferences. No option beats all others pairwise.",
+        "chapter_references": ["Chapter 10"]
+      },
+      "players": [
+        { "id": "voter1", "name": "Voter 1", "type": "rational" },
+        { "id": "voter2", "name": "Voter 2", "type": "rational" },
+        { "id": "voter3", "name": "Voter 3", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "vote_a_1", "name": "Vote A", "player_id": "voter1" },
+        { "id": "vote_b_1", "name": "Vote B", "player_id": "voter1" },
+        { "id": "vote_c_1", "name": "Vote C", "player_id": "voter1" },
+        { "id": "vote_a_2", "name": "Vote A", "player_id": "voter2" },
+        { "id": "vote_b_2", "name": "Vote B", "player_id": "voter2" },
+        { "id": "vote_c_2", "name": "Vote C", "player_id": "voter2" },
+        { "id": "vote_a_3", "name": "Vote A", "player_id": "voter3" },
+        { "id": "vote_b_3", "name": "Vote B", "player_id": "voter3" },
+        { "id": "vote_c_3", "name": "Vote C", "player_id": "voter3" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "vote_a_1.vote_a_2.vote_a_3": { "voter1": 3, "voter2": 1, "voter3": 2 },
+          "vote_b_1.vote_b_2.vote_b_3": { "voter1": 1, "voter2": 3, "voter3": 2 },
+          "vote_c_1.vote_c_2.vote_c_3": { "voter1": 2, "voter2": 2, "voter3": 3 }
+        }
+      },
+      "traits": [
+        {
+          "id": "majority_rule",
+          "type": "VotingRule",
+          "chapter": "Chapter 10",
+          "applies_to": "game",
+          "parameters": {
+            "rule": "majority",
+            "preferences": {
+              "voter1": ["A", "B", "C"],
+              "voter2": ["B", "C", "A"],
+              "voter3": ["C", "A", "B"]
+            }
+          }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 10",
+          "theoretical_origin": "Condorcet, Essai sur l'application de l'analyse (1785)",
+          "rationale": "Voter1: A>B>C. Voter2: B>C>A. Voter3: C>A>B. Pairwise: A beats B, B beats C, C beats A. Cycle — no Condorcet winner.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "VotingSolver",
+    "condorcet_winner": null,
+    "cycle_detected": true,
+    "cycle": ["A beats B", "B beats C", "C beats A"],
+    "rationale_must_cite": ["Chapter 10"]
+  }
+}

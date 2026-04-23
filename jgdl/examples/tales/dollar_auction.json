@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "The Dollar Auction",
+      "description": "An auctioneer sells a $1 bill. Both highest and second-highest bidder pay. Sunk costs drive escalation past the prize value.",
+      "chapter_references": ["Chapter 1", "Chapter 6"]
+    },
+    "players": [
+      { "id": "bidder_a", "name": "Bidder A", "type": "rational" },
+      { "id": "bidder_b", "name": "Bidder B", "type": "rational" }
+    ],
+    "actions": [
+      { "id": "bid_a",  "name": "Raise Bid", "player_id": "bidder_a" },
+      { "id": "quit_a", "name": "Quit",      "player_id": "bidder_a" },
+      { "id": "bid_b",  "name": "Raise Bid", "player_id": "bidder_b" },
+      { "id": "quit_b", "name": "Quit",      "player_id": "bidder_b" }
+    ],
+    "structure": {
+      "type": "sequential",
+      "order": ["bidder_a", "bidder_b"]
+    },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "bid_a.bid_b":   { "bidder_a": -1, "bidder_b": -1 },
+        "bid_a.quit_b":  { "bidder_a":  0, "bidder_b": -1 },
+        "quit_a.bid_b":  { "bidder_a": -1, "bidder_b":  0 },
+        "quit_a.quit_b": { "bidder_a":  0, "bidder_b":  0 }
+      }
+    },
+    "traits": [],
+    "initial_state": { "variables": { "prize": 1, "current_bid": 0 }, "history": [], "current_player": "bidder_a", "round": 0 },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 1",
+        "theoretical_origin": "Shubik, The Dollar Auction Game (1971)",
+        "rationale": "Escalation trap: once both players have bid, each faces a choice between losing their sunk cost or bidding more. Rational backward induction says never enter; but once in, escalation is locally rational. Illustrates commitment and sunk-cost traps (Chapter 6).",
+        "parent_id": "",
+        "timestamp": "2026-04-23T00:00:00Z",
+        "author": "user"
+      }
+    ]
+  }
+}

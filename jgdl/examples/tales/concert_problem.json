@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "The Concert Problem",
+      "description": "Should you buy tickets early at face value or wait for resale? Your decision depends on your belief about others' demand — a Bayesian timing problem.",
+      "chapter_references": ["Chapter 1", "Chapter 13"]
+    },
+    "players": [
+      { "id": "buyer",  "name": "Buyer",  "type": "rational" },
+      { "id": "market", "name": "Market", "type": "rational" }
+    ],
+    "actions": [
+      { "id": "buy_early", "name": "Buy Early", "player_id": "buyer" },
+      { "id": "wait",      "name": "Wait",       "player_id": "buyer" },
+      { "id": "high_demand", "name": "High Demand", "player_id": "market" },
+      { "id": "low_demand",  "name": "Low Demand",  "player_id": "market" }
+    ],
+    "structure": {
+      "type": "sequential",
+      "order": ["market", "buyer"]
+    },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "high_demand.buy_early": { "buyer": 10, "market": 0 },
+        "high_demand.wait":      { "buyer":  2, "market": 0 },
+        "low_demand.buy_early":  { "buyer":  5, "market": 0 },
+        "low_demand.wait":       { "buyer":  8, "market": 0 }
+      }
+    },
+    "traits": [],
+    "initial_state": {
+      "variables": { "prior_high_demand": 0.6 },
+      "history": [],
+      "current_player": "market",
+      "round": 0
+    },
+    "provenance": [
+      {
+        "operation": "initial_construction",
+        "chapter_ref": "Chapter 1",
+        "theoretical_origin": "Dixit & Nalebuff, Thinking Strategically (1991), Chapter 1",
+        "rationale": "Buyer's optimal action depends on prior over demand. At p(high)=0.6: E[buy_early]=0.6*10+0.4*5=8, E[wait]=0.6*2+0.4*8=4.4. Buy early dominates at this prior. Illustrates Bayesian decision-making under uncertainty (Chapter 13).",
+        "parent_id": "",
+        "timestamp": "2026-04-23T00:00:00Z",
+        "author": "user"
+      }
+    ]
+  }
+}

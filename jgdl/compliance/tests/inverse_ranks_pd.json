@@ -1,0 +1,67 @@
+{
+  "id": "inverse_ranks_pd_over_coordination",
+  "chapter": "Inverse",
+  "concept": "Inverse — Defection observations rank PD above coordination",
+  "description": "Given observations of mutual defection, the inverse solver should rank PD as more likely than a coordination game.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Inverse: PD vs Coordination",
+        "description": "Observed: both players defect repeatedly. Hypothesis space: PD vs coordination game.",
+        "chapter_references": ["Chapter 4"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "defect_1",    "name": "Defect",    "player_id": "p1" },
+        { "id": "cooperate_1", "name": "Cooperate", "player_id": "p1" },
+        { "id": "defect_2",    "name": "Defect",    "player_id": "p2" },
+        { "id": "cooperate_2", "name": "Cooperate", "player_id": "p2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "defect_1.defect_2":       { "p1": 1, "p2": 1 },
+          "cooperate_1.cooperate_2": { "p1": 3, "p2": 3 },
+          "defect_1.cooperate_2":    { "p1": 5, "p2": 0 },
+          "cooperate_1.defect_2":    { "p1": 0, "p2": 5 }
+        }
+      },
+      "traits": [],
+      "initial_state": {
+        "variables": {
+          "observations": [
+            { "p1": "defect_1", "p2": "defect_2" },
+            { "p1": "defect_1", "p2": "defect_2" },
+            { "p1": "defect_1", "p2": "defect_2" }
+          ]
+        },
+        "history": [],
+        "current_player": null,
+        "round": 0
+      },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 4",
+          "rationale": "Inverse case: three rounds of mutual defection observed. Inverse solver must rank PD above coordination game.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "InverseSolver",
+    "top_ranked_hypothesis": "PrisonersDilemma",
+    "pd_rank": 1,
+    "coordination_rank_lower_than_pd": true,
+    "rationale_must_cite": ["Chapter 4"]
+  }
+}

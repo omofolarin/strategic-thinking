@@ -1,0 +1,70 @@
+{
+  "id": "ch08_brinkmanship",
+  "chapter": "Chapter 8",
+  "concept": "Brinkmanship — Stochastic Catastrophic Risk",
+  "description": "Escalation carries 10% catastrophe probability. Expected escalation payoff is negative; back down dominates.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Brinkmanship — Escalation",
+        "description": "Each escalation step risks catastrophe with p=0.1.",
+        "chapter_references": ["Chapter 8"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "escalate_1",  "name": "Escalate",  "player_id": "p1" },
+        { "id": "back_down_1", "name": "Back Down", "player_id": "p1" },
+        { "id": "escalate_2",  "name": "Escalate",  "player_id": "p2" },
+        { "id": "back_down_2", "name": "Back Down", "player_id": "p2" }
+      ],
+      "structure": { "type": "sequential", "order": ["p1", "p2"] },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "escalate_1.escalate_2":   { "p1": -100, "p2": -100 },
+          "escalate_1.back_down_2":  { "p1":   10, "p2":   -5 },
+          "back_down_1.escalate_2":  { "p1":   -5, "p2":   10 },
+          "back_down_1.back_down_2": { "p1":    0, "p2":    0 }
+        }
+      },
+      "traits": [
+        {
+          "id": "brinkmanship_risk",
+          "type": "Brinkmanship",
+          "chapter": "Chapter 8",
+          "applies_to": "game",
+          "parameters": {
+            "catastrophe_probability": 0.1,
+            "catastrophe_payoff": { "p1": -1000, "p2": -1000 },
+            "trigger_action": "escalate_1"
+          }
+        }
+      ],
+      "initial_state": { "variables": {}, "history": [], "current_player": "p1", "round": 0 },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 8",
+          "theoretical_origin": "Schelling, The Strategy of Conflict (1960), Chapter 8",
+          "rationale": "E[escalate]=0.9*10+0.1*(-1000)=-91. Back down dominates. Equilibrium sensitive to catastrophe probability.",
+          "parent_id": "",
+          "timestamp": "2026-04-23T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "BackwardInduction",
+    "equilibrium_path": ["back_down_1"],
+    "catastrophe_probability": 0.1,
+    "expected_escalation_payoff": -91.0,
+    "equilibrium_sensitive_to_risk": true,
+    "rationale_must_cite": ["Chapter 8"]
+  }
+}
