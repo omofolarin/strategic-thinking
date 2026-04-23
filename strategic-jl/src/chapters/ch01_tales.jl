@@ -66,7 +66,47 @@ const TALES = Dict{Symbol, Tale}(
         ["Chapter 1", "Chapter 13"],
         "tales/concert_problem.json",
     ),
-    # Remaining five tales populated during Phase 1 as JGDL fixtures land.
+    # Remaining five tales — Phase 2 JGDL fixtures.
+    :price_war => Tale(
+        :price_war,
+        "The Price War",
+        "Two firms cut prices to capture market share, ending in mutual losses. Illustrates the prisoner's dilemma in a repeated market context.",
+        ["repeated_game", "commitment", "escalation"],
+        ["Chapter 1", "Chapter 4", "Chapter 6"],
+        "tales/price_war.json",
+    ),
+    :arms_race => Tale(
+        :arms_race,
+        "The Arms Race",
+        "Two nations each prefer to arm if the other arms, and to disarm if the other disarms — but mutual arming is the dominant equilibrium.",
+        ["dominance", "coordination", "commitment"],
+        ["Chapter 1", "Chapter 3", "Chapter 5"],
+        "tales/arms_race.json",
+    ),
+    :salary_negotiation => Tale(
+        :salary_negotiation,
+        "The Salary Negotiation",
+        "A worker and firm bargain over wages. Outside options and commitment determine the split.",
+        ["bargaining", "commitment", "outside_option"],
+        ["Chapter 1", "Chapter 11"],
+        "tales/salary_negotiation.json",
+    ),
+    :tournament_race => Tale(
+        :tournament_race,
+        "The Tournament Race",
+        "Contestants exert effort for a winner-take-all prize. Relative performance, not absolute, determines reward.",
+        ["tournament", "relative_payoff", "effort"],
+        ["Chapter 1", "Chapter 12"],
+        "tales/tournament_race.json",
+    ),
+    :sealed_bid => Tale(
+        :sealed_bid,
+        "The Sealed-Bid Auction",
+        "Bidders submit private bids for an object. Optimal strategy depends on beliefs about rivals' valuations.",
+        ["bayesian_reasoning", "private_information", "auction"],
+        ["Chapter 1", "Chapter 13"],
+        "tales/sealed_bid.json",
+    ),
 )
 
 """
