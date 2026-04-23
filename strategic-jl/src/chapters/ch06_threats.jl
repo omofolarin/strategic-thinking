@@ -10,11 +10,24 @@ end
 
 struct BurnedBridgeTrait <: GameTrait
     player_id::Symbol
-    forbidden_action::Symbol     # This action is removed from the available set.
+    forbidden_action::Symbol
 end
 
 register_trait!(CredibleThreatTrait, Set([:available_actions]))
 register_trait!(BurnedBridgeTrait,   Set([:available_actions]))
+
+function available_actions(g::WithTrait{<:AbstractGame, CredibleThreatTrait},
+                           state::State, player::Player)
+    actions = available_actions(g.inner, state, player)
+    t = g.trait
+    # If the trigger has fired and this is the threatener, only retaliation is available
+    trigger_fired = any(h -> h[2] == t.trigger_action, state.history)
+    if trigger_fired && player.id == t.threatener_id
+        ret = filter(a -> a.id == t.retaliation_action, actions)
+        return isempty(ret) ? actions : ret
+    end
+    actions
+end
 
 function available_actions(g::WithTrait{<:AbstractGame, BurnedBridgeTrait},
                            state::State, player::Player)

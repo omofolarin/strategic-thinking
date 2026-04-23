@@ -49,9 +49,12 @@ export
     ProvenanceNode, GameTrait, WithTrait,
     # Foundation (Ch 1–4)
     Tale, TALES, tale, tales_covering,
-    InformationSet, SequentialInvariants,
-    DominanceRelation, RationalizableSet, IteratedDominance,
-    TitForTat, GrimTrigger, Pavlov, GenerousTFT,
+    InformationSet, SequentialInvariants, validate_sequential, look_ahead_depth,
+    DominanceRelation, RationalizableSet, IteratedDominance, dominates,
+    TitForTat, GrimTrigger, Pavlov, GenerousTFT, choose_action,
+    # Modifier traits (Ch 5–8)
+    CommitmentTrait, CredibleThreatTrait, BurnedBridgeTrait,
+    MixedStrategyTrait, BrinkmanshipTrait,
     # Solvers
     BackwardInduction, NashEquilibrium, solve, simulate,
     # JGDL

@@ -4,9 +4,23 @@
 struct BrinkmanshipTrait <: GameTrait
     risky_action::Symbol
     catastrophe_probability::Float64
-    catastrophic_payoff::Dict{Symbol, Float64}  # Payoff to every player if catastrophe triggers.
+    catastrophic_payoff::Dict{Symbol, Float64}
 end
 
-register_trait!(BrinkmanshipTrait, Set([:transition, :payoff]))
+register_trait!(BrinkmanshipTrait, Set([:payoff]))
 
-# Phase 1 stub. Solver integration in ch08 lands with solvers/forward/backward_induction.jl.
+"""
+    payoff(g::WithTrait{<:AbstractGame, BrinkmanshipTrait}, state)
+
+If the risky action appears in history, blend the base payoff with the
+catastrophic payoff weighted by catastrophe_probability.
+"""
+function payoff(g::WithTrait{<:AbstractGame, BrinkmanshipTrait}, state::State)
+    base = payoff(g.inner, state)
+    t = g.trait
+    triggered = any(h -> h[2] == t.risky_action, state.history)
+    triggered || return base
+    p = t.catastrophe_probability
+    Dict(k => (1 - p) * get(base, k, 0.0) + p * get(t.catastrophic_payoff, k, 0.0)
+         for k in union(keys(base), keys(t.catastrophic_payoff)))
+end

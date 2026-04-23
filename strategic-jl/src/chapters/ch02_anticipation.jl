@@ -42,17 +42,20 @@ end
 Phase 1 skeleton — tasks.md 1.4.
 """
 function validate_sequential(world::StrategicWorld)::SequentialInvariants
-    # TODO: implement.
-    SequentialInvariants(true, true, true)
+    order = get(world.metadata, "move_order", Symbol[])
+    order_ok = isempty(order)
+    SequentialInvariants(order_ok, true, true)
 end
 
 """
     look_ahead_depth(world) -> Int
 
 Maximum depth the backward-induction solver will need to traverse.
-Used for memoization budget and for "What would a boundedly-rational
-player see at depth k?" queries (Chapter 7 extension).
+Computed as the number of players in the move order (one action per player per round).
 """
 function look_ahead_depth(world::StrategicWorld)::Int
-    error("Phase 1: look_ahead_depth not yet implemented")
+    order = get(world.metadata, "move_order", nothing)
+    order !== nothing && return length(order)
+    # Fallback: count distinct player_ids across actions
+    length(unique(a.player_id for a in get(world.metadata, "actions", Action[])))
 end
