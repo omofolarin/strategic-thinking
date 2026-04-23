@@ -5,7 +5,11 @@
 export type Author = "user" | "llm" | "system";
 
 export interface ProvenanceNode {
+  /** Optional UUID v4 — stable reference for downstream explanation layers. */
+  id?: string;
   operation: string;
+  /** Populated iff operation === "applied_trait". */
+  trait_type?: TraitType;
   chapter_ref: string;
   theoretical_origin?: string;
   rationale: string;

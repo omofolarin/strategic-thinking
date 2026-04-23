@@ -14,6 +14,34 @@ Please read these in order:
 
 If your change isn't in the current phase's task list, please open an issue first.
 
+## Local setup
+
+### Pre-commit hooks (recommended)
+
+The repo uses [pre-commit](https://pre-commit.com/) to enforce the architectural contracts *before* you commit. Install once per clone:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Hooks run automatically on `git commit`. To run them manually across all files:
+
+```bash
+pre-commit run --all-files
+```
+
+What the hooks check:
+
+| Hook | Purpose |
+|---|---|
+| `trait-registration` | Every `struct <: GameTrait` has a matching `register_trait!` call |
+| `jgdl-schema` | JGDL examples and compliance tests validate against v1.0.0 schema (requires `ajv-cli`; skipped locally otherwise) |
+| `provenance-invariant` | No `Solution(...)` constructed with an empty provenance chain |
+| Standard hygiene | Trailing whitespace, LF line endings, JSON/YAML/TOML parse-check, no large files |
+
+Optional (gives you full local parity with CI): `npm install -g ajv-cli ajv-formats` for JGDL schema validation.
+
 ## How to contribute
 
 ### Reporting a bug

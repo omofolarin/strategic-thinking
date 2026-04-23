@@ -6,4 +6,6 @@ struct BargainingProtocolTrait <: GameTrait
     discount_factor::Float64
 end
 
+register_trait!(BargainingProtocolTrait, Set([:transition, :available_actions]))
+
 # Phase 2+ stub.

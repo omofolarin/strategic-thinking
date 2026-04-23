@@ -1,0 +1,61 @@
+# Pre-commit hooks enforcing the architectural contracts documented in
+# AGENTS.md and docs/trait-composition-contract.md.
+#
+# Install once per clone:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually across all files:
+#   pre-commit run --all-files
+
+repos:
+  # Standard hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # Local contract-enforcement hooks
+  - repo: local
+    hooks:
+      - id: trait-registration
+        name: Every shipped trait must call register_trait!
+        description: |
+          Enforces docs/trait-composition-contract.md §5. A file in
+          strategic-jl/src/chapters/ that defines a `<: GameTrait` struct
+          must also contain a `register_trait!(...)` call for it.
+        entry: scripts/validate_trait_declaration.sh
+        language: script
+        files: ^strategic-jl/src/chapters/.*\.jl$
+        pass_filenames: true
+
+      - id: jgdl-schema
+        name: Validate JGDL JSON against v1.0.0 schema
+        description: |
+          Runs ajv-cli (if installed) to validate every JGDL example and
+          compliance test case against jgdl/schema/v1.0.0.schema.json.
+          Skipped with a warning if ajv is not installed — CI runs this
+          check unconditionally (see .github/workflows/ci.yml).
+        entry: scripts/validate_jgdl.sh
+        language: script
+        files: ^jgdl/(examples|compliance/tests)/.*\.json$
+        pass_filenames: true
+
+      - id: provenance-invariant
+        name: No Solution without a provenance_chain
+        description: |
+          AGENTS.md §1.1 requires every Solution to carry a non-empty
+          provenance_chain. This hook rejects any change that constructs
+          a Solution(...) with an empty chain literal.
+        entry: scripts/validate_provenance_invariant.sh
+        language: script
+        files: ^strategic-jl/.*\.jl$
+        pass_filenames: true

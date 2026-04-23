@@ -1,6 +1,6 @@
 module Strategic
 
-using JSON3, SHA, Dates, UUIDs, Graphs, Distributions
+using JSON, SHA, Dates, UUIDs, Graphs, Distributions
 
 include("core/types.jl")
 include("core/provenance.jl")

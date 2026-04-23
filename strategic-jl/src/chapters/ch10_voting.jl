@@ -5,4 +5,6 @@ struct VotingRuleTrait <: GameTrait
     members::Int
 end
 
+register_trait!(VotingRuleTrait, Set([:aggregate, :transition]))
+
 # Phase 2+ stub.

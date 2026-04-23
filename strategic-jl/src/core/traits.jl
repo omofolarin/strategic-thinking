@@ -27,17 +27,23 @@ available_actions(g::WithTrait, state::State, player::Player) =
 payoff(g::WithTrait, state::State) = payoff(g.inner, state)
 
 function with_trait(world::StrategicWorld, trait::GameTrait;
-                    chapter_ref::String, rationale::String)
+                    chapter_ref::String,
+                    rationale::String,
+                    theoretical_origin::Union{String, Nothing} = nothing,
+                    author::Symbol = :user)
     new_game = WithTrait(world.game, trait)
     new_world = StrategicWorld(world.id, new_game,
                                vcat(world.traits, [trait]),
                                copy(world.provenance),
                                copy(world.metadata))
     append_provenance!(new_world, ProvenanceNode(
-        "applied_trait_$(typeof(trait))",
+        "applied_trait",
         chapter_ref,
         rationale;
-        parent_id = world.id
+        trait_type = string(nameof(typeof(trait))),
+        parent_id = world.id,
+        theoretical_origin = theoretical_origin,
+        author = author,
     ))
     new_world
 end

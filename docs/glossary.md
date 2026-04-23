@@ -240,13 +240,31 @@ One entry in the audit chain. Every operation that transforms a world appends ex
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | ✓ | Machine-readable operation name, e.g. `"applied_trait_BurnedBridgeTrait"` |
+| `id` | string (UUID v4) | | Optional stable identifier. Populated when the producing engine wants downstream layers to reference this specific node by id. |
+| `operation` | string | ✓ | Machine-readable operation name. Canonical values: `initial_construction`, `applied_trait`, `inferred_hypothesis`, `ruled_out_hypothesis`, `detected_surprise`, `discovered_player`, `activated_hedge`. Free-form strings allowed for extensibility. |
+| `trait_type` | string | | Populated iff `operation == "applied_trait"`. One of the `TraitType` enum values. Split from `operation` so explanation layers can group by trait family without parsing strings. |
 | `chapter_ref` | string | ✓ | Dixit–Nalebuff chapter this operation draws from |
-| `theoretical_origin` | string | | Deeper lineage, e.g. `"Schelling, The Strategy of Conflict (1960), Ch. 7"` |
+| `theoretical_origin` | string | | Deeper lineage, e.g. `"Schelling, The Strategy of Conflict (1960), Part II"` |
 | `rationale` | string | | Human-readable justification for the operation |
 | `parent_id` | string | ✓ | `world.id` before this operation (empty string for initial construction) |
 | `timestamp` | string (RFC 3339) | ✓ | When the operation occurred |
 | `author` | `Author` enum | ✓ | Who initiated the operation |
+
+#### Example — trait application
+
+```json
+{
+  "id": "7f8a1b3c-4d5e-4a6b-9f0c-1e2d3a4b5c6d",
+  "operation": "applied_trait",
+  "trait_type": "BurnedBridge",
+  "chapter_ref": "Chapter 6",
+  "theoretical_origin": "Schelling, The Strategy of Conflict (1960), Part II",
+  "rationale": "Restricting own options to make the fight threat credible.",
+  "parent_id": "sha256:abc123...",
+  "timestamp": "2026-04-19T10:24:51Z",
+  "author": "user"
+}
+```
 
 #### `Author` values
 

@@ -7,4 +7,6 @@ struct BayesianBeliefTrait <: GameTrait
     update_rule::Symbol              # :bayes, :quantal_response, :fictitious_play
 end
 
+register_trait!(BayesianBeliefTrait, Set([:update_beliefs]))
+
 # Phase 2+ stub.

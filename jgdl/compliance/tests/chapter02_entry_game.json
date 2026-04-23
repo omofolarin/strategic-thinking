@@ -1,0 +1,63 @@
+{
+  "id": "compliance_ch02_001",
+  "chapter": "Chapter 2",
+  "concept": "Anticipating Your Rival's Response",
+  "description": "Market entry: Entrant moves first, Incumbent responds. Classical example of a sequential game where the incumbent's threat of a price war is not subgame-perfect — entering is rational because accommodating maximizes the incumbent's residual payoff.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Market Entry Game",
+        "description": "Sequential game testing subgame-perfect equilibrium via backward induction.",
+        "chapter_references": ["Chapter 2"]
+      },
+      "players": [
+        { "id": "entrant",   "name": "Entrant",   "type": "rational" },
+        { "id": "incumbent", "name": "Incumbent", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "enter",       "name": "Enter",       "player_id": "entrant" },
+        { "id": "stay_out",    "name": "Stay Out",    "player_id": "entrant" },
+        { "id": "fight",       "name": "Fight",       "player_id": "incumbent" },
+        { "id": "accommodate", "name": "Accommodate", "player_id": "incumbent" }
+      ],
+      "structure": {
+        "type": "sequential",
+        "order": ["entrant", "incumbent"]
+      },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "enter.fight":         { "entrant": -10, "incumbent": -20 },
+          "enter.accommodate":   { "entrant":  40, "incumbent":  30 },
+          "stay_out.*":          { "entrant":   0, "incumbent": 100 }
+        }
+      },
+      "traits": [],
+      "initial_state": {
+        "variables": {},
+        "history": [],
+        "current_player": "entrant",
+        "round": 0
+      },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 2",
+          "rationale": "Baseline sequential entry game. Incumbent's payoff for Fight (-20) is worse than Accommodate (30), so Fight is not credible. Entrant anticipates Accommodate and Enters.",
+          "parent_id": "",
+          "timestamp": "2026-04-19T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "BackwardInduction",
+    "equilibrium_path": ["enter", "accommodate"],
+    "payoffs": { "entrant": 40, "incumbent": 30 },
+    "subgame_perfect": true,
+    "rationale_must_cite": ["Chapter 2"]
+  }
+}

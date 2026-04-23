@@ -5,4 +5,6 @@ struct CoordinationDeviceTrait <: GameTrait
     salience::Float64  # Weight placed on focal equilibrium during selection.
 end
 
-# Phase 1 stub.
+register_trait!(CoordinationDeviceTrait, Set([:select_equilibrium]))
+
+# Phase 2 stub.

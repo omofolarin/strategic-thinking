@@ -1,13 +1,11 @@
 ### A Pluto.jl notebook ###
-# v0.19
+# v0.20.24
 
 using Markdown
 using InteractiveUtils
 
-# Pluto cells go here once Phase 1 is online. Intent:
-#   - sliders for trait parameters
-#   - live game-tree viz
-#   - provenance panel with chapter citations
-#   - offline (no external LLM calls)
-#
-# See tasks.md 1.7.
+# ╔═╡ 1b32344a-ef93-496d-af63-f75b52ca17f7
+
+
+# ╔═╡ Cell order:
+# ╠═1b32344a-ef93-496d-af63-f75b52ca17f7

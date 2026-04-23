@@ -1,19 +1,20 @@
 name = "Strategic"
 uuid = "521b4761-3106-42aa-a309-063b8204ca99"
-authors = ["Folarin Shonibare <folarinshonibare@gmail.com>"]
-version = "0.1.0-dev"
 license = "Apache-2.0"
+version = "0.1.0-dev"
+authors = ["Folarin Shonibare <folarinshonibare@gmail.com>"]
 repository = "https://github.com/omofolarin/strategic-thinking"
 
 [deps]
-JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
-Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
+JSON = "1.5.0"
 julia = "1.10"
 
 [extras]
