@@ -241,7 +241,7 @@ One entry in the audit chain. Every operation that transforms a world appends ex
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `id` | string (UUID v4) | | Optional stable identifier. Populated when the producing engine wants downstream layers to reference this specific node by id. |
-| `operation` | string | ✓ | Machine-readable operation name. Canonical values: `initial_construction`, `applied_trait`, `inferred_hypothesis`, `ruled_out_hypothesis`, `detected_surprise`, `discovered_player`, `activated_hedge`. Free-form strings allowed for extensibility. |
+| `operation` | string | ✓ | Machine-readable operation name. Canonical values: `initial_construction`, `applied_trait`, `inferred_hypothesis`, `ruled_out_hypothesis`, `detected_surprise`, `discovered_player`, `activated_hedge`, `elicited_payoff_layer`, `elicited_world`. Free-form strings allowed for extensibility. |
 | `trait_type` | string | | Populated iff `operation == "applied_trait"`. One of the `TraitType` enum values. Split from `operation` so explanation layers can group by trait family without parsing strings. |
 | `chapter_ref` | string | ✓ | Dixit–Nalebuff chapter this operation draws from |
 | `theoretical_origin` | string | | Deeper lineage, e.g. `"Schelling, The Strategy of Conflict (1960), Part II"` |
@@ -265,6 +265,27 @@ One entry in the audit chain. Every operation that transforms a world appends ex
   "author": "user"
 }
 ```
+
+#### Example — LLM payoff elicitation
+
+When a world is constructed via LLM-assisted elicitation (see `llm-payoff-elicitation.md`),
+each layer estimate produces a node with `operation = "elicited_payoff_layer"`, and the
+overall elicitation session produces a node with `operation = "elicited_world"`. These
+nodes carry the LLM's reasoning in `rationale`, making the payoff assumptions auditable.
+
+```json
+{
+  "operation": "elicited_payoff_layer",
+  "chapter_ref": "Chapter 1",
+  "rationale": "Layer :social for supplier in 'cooperate_s.cooperate_b': estimate=2.0, confidence=0.7. 10-year relationship at stake.",
+  "parent_id": "",
+  "timestamp": "2026-04-24T04:20:00Z",
+  "author": "llm"
+}
+```
+
+The `mean_confidence` across all layer estimates signals how much to trust the elicited
+world as a prior vs. how aggressively the inverse solver should correct it from observations.
 
 #### `Author` values
 
@@ -488,6 +509,9 @@ For deeper treatment, the source material is *Thinking Strategically* (Dixit & N
 | **This glossary** | JGDL terms and types | Reading, writing, or validating a JGDL document |
 | `composition-architecture.md` | Why JGDL is one of four layers that make the toolkit composable | Orienting to the architecture |
 | `trait-composition-contract.md` | Rules every `Trait` must obey, dispatch-target registry, collision resolution | Authoring a new trait |
+| `context-driven-payoff-design.md` | Five-layer framework for constructing payoffs from real-world context | Designing a payoff matrix for a new world |
+| `llm-payoff-elicitation.md` | How LLMs convert natural language descriptions into payoff matrices; `ElicitedPayoffMatrix` types; Phase 4 `elicit_world` tool | Using LLM-assisted world construction |
+| `rationality-and-cultural-context.md` | What rationality means in this toolkit; why payoffs are the locus of cultural variation | Understanding cross-cultural modelling |
 | `jgdl/schema/v1.0.0.schema.json` | Machine-readable schema | Running validation, generating code |
 | `jgdl/examples/*.json` | Reference JGDL documents | Learning by example |
 | `jgdl/compliance/compliance_suite.json` | Cross-language correctness tests | Verifying an implementation |
