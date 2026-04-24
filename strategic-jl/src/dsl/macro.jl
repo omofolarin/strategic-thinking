@@ -198,15 +198,60 @@ function strategic(text::AbstractString)::StrategicWorld
 
     isempty(players) && error("strategic DSL: no players declared")
 
-    # Validate payoff keys against declared action IDs
+    # Unique player IDs
+    player_ids = [pid for (pid, _) in players]
+    dupes = [id for id in player_ids if count(==(id), player_ids) > 1] |> unique
+    isempty(dupes) || error("strategic DSL: duplicate player ids: $(join(dupes, ", "))")
+
+    # Unique action IDs within each player (same name across players is fine)
+    for (pid, acts) in players
+        dupes = [id for id in acts if count(==(id), acts) > 1] |> unique
+        isempty(dupes) || error("strategic DSL: player $pid has duplicate action ids: $(join(dupes, ", "))")
+    end
+
     all_action_ids = Set(aid for (_, acts) in players for aid in acts)
+
+    all_action_ids = Set(aid for (_, acts) in players for aid in acts)
+
+    # Payoff key segments reference declared action IDs
     for key in keys(payoffs)
         for seg in split(string(key), ".")
             seg == "*" && continue
             Symbol(seg) ∉ all_action_ids &&
                 error("strategic DSL: payoff key '$key' references undeclared action '$seg'. " *
-                      "Declared actions: $(join(sort(string.(collect(all_action_ids))), ", "))")
+                      "Declared: $(join(sort(string.(collect(all_action_ids))), ", "))")
         end
+    end
+
+    # Payoff matrix completeness (2-player games) — hard error only if payoffs block exists but is empty
+    isempty(payoffs) && length(players) > 0 &&
+        error("strategic DSL: payoff block is empty — no outcomes defined")
+
+    # Trait references valid IDs
+    for t in traits
+        if t isa BurnedBridgeTrait
+            t.player_id ∉ all_action_ids || true  # player_id checked below
+            t.forbidden_action ∉ all_action_ids &&
+                error("strategic DSL: burns bridge references undeclared action '$(t.forbidden_action)'")
+            t.player_id ∉ Set(player_ids) &&
+                error("strategic DSL: burns bridge references undeclared player '$(t.player_id)'")
+        elseif t isa CommitmentTrait
+            t.committed_action ∉ all_action_ids &&
+                error("strategic DSL: commits to undeclared action '$(t.committed_action)'")
+        elseif t isa MixedStrategyTrait
+            total = sum(values(t.distribution); init = 0.0)
+            abs(total - 1.0) > 0.01 &&
+                error("strategic DSL: mixed strategy for $(t.player_id) sums to $(round(total; digits=4)), expected 1.0")
+        elseif t isa BrinkmanshipTrait
+            (t.catastrophe_probability < 0 || t.catastrophe_probability > 1) &&
+                error("strategic DSL: catastrophe_probability=$(t.catastrophe_probability) must be in [0, 1]")
+        end
+    end
+
+    # Sequential order references declared players
+    for pid in order
+        pid ∉ Set(player_ids) &&
+            error("strategic DSL: move order references undeclared player '$pid'")
     end
 
     # Complete sequential order with undeclared players
