@@ -34,10 +34,10 @@ include("solvers/inverse/bayesian_inference.jl")
 include("solvers/inverse/hypothesis_narrowing.jl")
 include("solvers/inverse/structural_break.jl")
 
-include("antifragile/open_world.jl")
 include("antifragile/surprise_detector.jl")
 include("antifragile/player_discovery.jl")
 include("antifragile/hedges.jl")
+include("antifragile/open_world.jl")
 
 include("jgdl/serialize.jl")
 include("jgdl/deserialize.jl")
@@ -66,6 +66,12 @@ export
     ObservedPlay, HypothesisWorld, PosteriorWorldDistribution, ranked,
     infer_from_observations,
     NarrowingSession, add_observation!, prune!, rule_in!, current_ranking,
-    StructuralBreak, detect_structural_break
+    StructuralBreak, detect_structural_break,
+    # Antifragile toolkit (Phase 3)
+    WorldMutationTemplate, SurpriseEvent, SurpriseDetector,
+    detect_surprise, mutate_world,
+    DiscoveredPlayer, discover_players,
+    Hedge, HedgeActivation, evaluate_hedges, parse_jgdl_hedges,
+    ShadowPlayer, OpenWorldGame, AntifragileSolution, solve_antifragile
 
 end # module Strategic
