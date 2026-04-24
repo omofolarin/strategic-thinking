@@ -44,6 +44,7 @@ include("jgdl/deserialize.jl")
 include("jgdl/validate.jl")
 
 include("elicitation/payoff_elicitation.jl")
+include("dsl/macro.jl")
 
 export
     StrategicWorld, Player, Action, State, LazyGameTree,
@@ -65,7 +66,7 @@ export
     to_payoff_matrix, mean_confidence, build_world_from_elicitation, elicit_layer,
     PAYOFF_LAYERS,
     # DSL
-    @strategic,
+    strategic, @strategic,
     # Inverse toolkit (Phase 2)
     ObservedPlay, HypothesisWorld, PosteriorWorldDistribution, ranked,
     infer_from_observations,
