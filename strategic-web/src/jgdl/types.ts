@@ -119,9 +119,35 @@ export interface World {
   provenance: ProvenanceNode[];
   open_world?: OpenWorld;
   hedges?: Hedge[];
+  elicitation?: ElicitationRecord;
 }
 
 export interface JgdlDocument {
-  version: "1.0.0";
+  version: "1.0.0" | "1.1.0";
   world: World;
+}
+
+// v1.1.0 — LLM-assisted payoff elicitation types
+
+export type PayoffLayer = "material" | "social" | "temporal" | "identity" | "uncertainty";
+
+export interface PayoffLayerEstimate {
+  layer: PayoffLayer;
+  point_estimate: number;
+  confidence: number;  // 0–1
+  reasoning: string;
+}
+
+export interface ElicitedOutcomePayoff {
+  player_id: string;
+  outcome_key: string;
+  total: number;
+  mean_confidence: number;
+  layers: PayoffLayerEstimate[];
+}
+
+export interface ElicitationRecord {
+  description: string;
+  mean_confidence: number;
+  entries: ElicitedOutcomePayoff[];
 }

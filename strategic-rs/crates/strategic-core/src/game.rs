@@ -20,6 +20,8 @@ pub struct StrategicWorld {
     pub open_world: Option<OpenWorld>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub hedges: Vec<Hedge>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub elicitation: Option<ElicitationRecord>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -184,4 +186,38 @@ pub struct Hedge {
     pub optionality_value: f64,
     #[serde(default)]
     pub chapter_reference: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ElicitationRecord {
+    pub description: String,
+    pub mean_confidence: f64,
+    pub entries: Vec<ElicitedOutcomePayoff>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ElicitedOutcomePayoff {
+    pub player_id: String,
+    pub outcome_key: String,
+    pub total: f64,
+    pub mean_confidence: f64,
+    pub layers: Vec<PayoffLayerEstimate>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PayoffLayerEstimate {
+    pub layer: PayoffLayer,
+    pub point_estimate: f64,
+    pub confidence: f64,
+    pub reasoning: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PayoffLayer {
+    Material,
+    Social,
+    Temporal,
+    Identity,
+    Uncertainty,
 }
