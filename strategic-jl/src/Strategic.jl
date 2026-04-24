@@ -32,6 +32,7 @@ include("solvers/forward/dominance.jl")
 include("solvers/forward/nash.jl")
 include("solvers/inverse/bayesian_inference.jl")
 include("solvers/inverse/hypothesis_narrowing.jl")
+include("solvers/inverse/structural_break.jl")
 
 include("antifragile/open_world.jl")
 include("antifragile/surprise_detector.jl")
@@ -60,6 +61,11 @@ export
     # JGDL
     to_jgdl, from_jgdl, world_id, validate_jgdl, ValidationError,
     # DSL
-    @strategic
+    @strategic,
+    # Inverse toolkit (Phase 2)
+    ObservedPlay, HypothesisWorld, PosteriorWorldDistribution, ranked,
+    infer_from_observations,
+    NarrowingSession, add_observation!, prune!, rule_in!, current_ranking,
+    StructuralBreak, detect_structural_break
 
 end # module Strategic
