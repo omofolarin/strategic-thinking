@@ -17,312 +17,346 @@ macro bind(def, element)
 end
 
 # ╔═╡ 00000001-0000-0000-0000-000000000001
-using PlutoUI, JSON3, Dates, UUIDs
+begin
+    using Pkg
+    Pkg.activate(joinpath(@__DIR__, ".."))
+    using Strategic
+    using PlutoUI
+    using JSON
+end
 
 # ╔═╡ 00000001-0000-0000-0000-000000000002
 md"""
-# JGDL Explorer
+# Strategic.jl Explorer
 
-Build a JGDL v1.0.0 world interactively. No solver required — this notebook
-is designed to work **before** the full `Strategic.jl` implementation lands,
-so you can stress-test schema design and see how the primitives compose in
-JSON form.
+Build a 2×2 game with sliders, stack traits onto it, and run the solver live.
+The provenance panel shows the **actual** citation chain the solver produced —
+not a hand-written dict.
 
-See `docs/glossary.md` for the full term reference.
+Use this to eyeball how commitment, brinkmanship, or tournament incentives
+shift the equilibrium relative to the baseline payoff matrix.
 """
 
 # ╔═╡ 00000001-0000-0000-0000-000000000003
-md"## Players"
+md"## Baseline stage game (2×2)"
 
 # ╔═╡ 00000001-0000-0000-0000-000000000004
-@bind n_players Slider(2:5; default=2, show_value=true)
+md"""
+Standard convention: R = mutual cooperation, T = temptation to defect,
+S = sucker's payoff, P = mutual punishment. For a prisoner's dilemma you
+want T > R > P > S.
+"""
 
 # ╔═╡ 00000001-0000-0000-0000-000000000005
-@bind player_type Select([
-    "rational" => "Rational",
-    "bounded_rational" => "Bounded rational",
-    "llm_driven" => "LLM-driven",
-])
+@bind R Slider(-5.0:0.5:10.0; default = 3.0, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-000000000006
-md"## Structure"
+@bind T Slider(-5.0:0.5:10.0; default = 5.0, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-000000000007
-@bind structure_type Select([
-    "simultaneous" => "Simultaneous (Ch 4, 7)",
-    "sequential" => "Sequential (Ch 2)",
-    "repeated" => "Repeated (Ch 4 reciprocity)",
-])
+@bind P Slider(-5.0:0.5:10.0; default = 1.0, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-000000000008
-@bind repetitions NumberField(1:100, default=10)
+@bind S Slider(-5.0:0.5:10.0; default = 0.0, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-000000000009
-@bind discount_factor Slider(0.0:0.05:1.0; default=0.9, show_value=true)
+md"## Traits to stack"
 
 # ╔═╡ 00000001-0000-0000-0000-00000000000a
-md"## Traits (Phase 1 subset)"
+@bind include_commitment CheckBox(default = false)
 
 # ╔═╡ 00000001-0000-0000-0000-00000000000b
-@bind include_commitment CheckBox(default=false)
+@bind include_brinkmanship CheckBox(default = false)
 
 # ╔═╡ 00000001-0000-0000-0000-00000000000c
-@bind include_burned_bridge CheckBox(default=false)
+@bind include_tournament CheckBox(default = false)
 
 # ╔═╡ 00000001-0000-0000-0000-00000000000d
-@bind include_brinkmanship CheckBox(default=false)
+md"### Trait parameters"
 
 # ╔═╡ 00000001-0000-0000-0000-00000000000e
-md"## Antifragile extension (Phase 3)"
+@bind commitment_penalty Slider(0.0:1.0:100.0; default = 20.0, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-00000000000f
-@bind include_open_world CheckBox(default=false)
+@bind catastrophe_prob Slider(0.0:0.05:0.5; default = 0.1, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-000000000010
-@bind emergence_rate Slider(0.0:0.01:0.5; default=0.05, show_value=true)
+@bind tournament_weight Slider(0.0:0.1:2.0; default = 0.5, show_value = true)
 
 # ╔═╡ 00000001-0000-0000-0000-000000000011
-md"---"
+md"---
+## World"
 
 # ╔═╡ 00000001-0000-0000-0000-000000000012
-"""
-    build_world(; kwargs...)
-
-Construct a JGDL-shaped dictionary. This is schema-conformant enough for
-the explorer; the real Strategic.jl implementation will replace this with
-structured types, but the emitted JSON should be identical.
-"""
-function build_world(;
-    n_players::Int,
-    player_type::String,
-    structure_type::String,
-    repetitions::Int,
-    discount_factor::Float64,
-    include_commitment::Bool,
-    include_burned_bridge::Bool,
-    include_brinkmanship::Bool,
-    include_open_world::Bool,
-    emergence_rate::Float64,
-)
-    players = [Dict(
-        "id" => "p$i",
-        "name" => "Player $i",
-        "type" => player_type,
-    ) for i in 1:n_players]
-
-    actions = reduce(vcat, [
-        [
-            Dict("id" => "a$(i)_coop",   "name" => "Cooperate", "player_id" => "p$i"),
-            Dict("id" => "a$(i)_defect", "name" => "Defect",    "player_id" => "p$i"),
-        ]
-        for i in 1:n_players
-    ])
-
-    structure = if structure_type == "sequential"
-        Dict("type" => "sequential", "order" => ["p$i" for i in 1:n_players])
-    elseif structure_type == "repeated"
-        Dict("type" => "repeated",
-             "repetitions" => repetitions,
-             "discount_factor" => discount_factor)
-    else
-        Dict("type" => "simultaneous")
-    end
-
-    traits = []
-    provenance = [Dict(
-        "id" => string(uuid4()),
-        "operation" => "initial_construction",
-        "chapter_ref" => "Explorer",
-        "rationale" => "Built interactively in explore_jgdl.jl",
-        "parent_id" => "",
-        "timestamp" => string(now()),
-        "author" => "user",
-    )]
-
+# Build the world from the baseline payoffs + selected traits. The DSL does
+# the schema work; we then layer trait structs directly so sliders drive
+# their parameters without rewriting the DSL string.
+world = let
+    base = strategic("""
+        player p1 can [cooperate, defect]
+        player p2 can [cooperate, defect]
+        payoff:
+            (cooperate, cooperate) => ($R, $R)
+            (cooperate, defect)    => ($S, $T)
+            (defect,    cooperate) => ($T, $S)
+            (defect,    defect)    => ($P, $P)
+    """)
+    traits = GameTrait[]
+    prov = copy(base.provenance)
     if include_commitment
-        push!(traits, Dict(
-            "id" => "p1_commitment",
-            "type" => "Commitment",
-            "chapter" => "Chapter 5",
-            "applies_to" => "player",
-            "parameters" => Dict(
-                "player_id" => "p1",
-                "committed_action" => "a1_coop",
-                "penalty_for_deviation" => 10.0,
-            ),
-        ))
-        push!(provenance, Dict(
-            "id" => string(uuid4()),
-            "operation" => "applied_trait",
-            "trait_type" => "Commitment",
-            "chapter_ref" => "Chapter 5",
-            "rationale" => "Player 1 commits to cooperation; penalty of 10 on deviation.",
-            "parent_id" => "",
-            "timestamp" => string(now()),
-            "author" => "user",
-        ))
+        push!(traits, CommitmentTrait(:p1, :cooperate, commitment_penalty))
+        push!(prov,
+            ProvenanceNode("applied_trait", "Chapter 5",
+                "p1 commits to cooperate with penalty=$(commitment_penalty)";
+                trait_type = "CommitmentTrait", parent_id = base.id))
     end
-
-    if include_burned_bridge
-        push!(traits, Dict(
-            "id" => "p1_burned_bridge",
-            "type" => "BurnedBridge",
-            "chapter" => "Chapter 6",
-            "applies_to" => "action",
-            "parameters" => Dict(
-                "player_id" => "p1",
-                "forbidden_action" => "a1_defect",
-            ),
-        ))
-        push!(provenance, Dict(
-            "id" => string(uuid4()),
-            "operation" => "applied_trait",
-            "trait_type" => "BurnedBridge",
-            "chapter_ref" => "Chapter 6",
-            "theoretical_origin" => "Schelling, The Strategy of Conflict (1960), Part II",
-            "rationale" => "Player 1 removes defect option — restriction signals resolve.",
-            "parent_id" => "",
-            "timestamp" => string(now()),
-            "author" => "user",
-        ))
-    end
-
     if include_brinkmanship
-        push!(traits, Dict(
-            "id" => "brinkmanship_p1",
-            "type" => "Brinkmanship",
-            "chapter" => "Chapter 8",
-            "applies_to" => "game",
-            "parameters" => Dict(
-                "risky_action" => "a1_defect",
-                "catastrophe_probability" => 0.1,
-                "catastrophic_payoff" => Dict("p1" => -1000.0, "p2" => -1000.0),
-            ),
-        ))
-        push!(provenance, Dict(
-            "id" => string(uuid4()),
-            "operation" => "applied_trait",
-            "trait_type" => "Brinkmanship",
-            "chapter_ref" => "Chapter 8",
-            "rationale" => "Defecting carries 10% chance of mutual catastrophe.",
-            "parent_id" => "",
-            "timestamp" => string(now()),
-            "author" => "user",
-        ))
+        push!(traits,
+            BrinkmanshipTrait(:defect, catastrophe_prob,
+                Dict(:p1 => -1000.0, :p2 => -1000.0)))
+        push!(prov,
+            ProvenanceNode("applied_trait", "Chapter 8",
+                "defect carries $(round(catastrophe_prob*100; digits=1))% catastrophe risk";
+                trait_type = "BrinkmanshipTrait", parent_id = base.id))
     end
-
-    world = Dict(
-        "id" => "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-        "metadata" => Dict(
-            "name" => "Explorer-built world",
-            "description" => "Constructed interactively via explore_jgdl.jl",
-            "chapter_references" => ["Explorer"],
-            "created" => string(now()),
-        ),
-        "players" => players,
-        "actions" => actions,
-        "structure" => structure,
-        "payoffs" => Dict(
-            "type" => "terminal_matrix",
-            "matrix" => Dict{String, Dict{String, Float64}}(),
-        ),
-        "traits" => traits,
-        "initial_state" => Dict(
-            "variables" => Dict{String, Any}(),
-            "history" => [],
-            "current_player" => structure_type == "sequential" ? "p1" : nothing,
-            "round" => 0,
-        ),
-        "provenance" => provenance,
-    )
-
-    if include_open_world
-        world["open_world"] = Dict(
-            "emergence_rate" => emergence_rate,
-            "shadow_player" => Dict(
-                "id" => "__shadow__",
-                "surprise_weight" => 1.5,
-            ),
-        )
+    if include_tournament
+        push!(traits, TournamentIncentiveTrait(tournament_weight))
+        push!(prov,
+            ProvenanceNode("applied_trait", "Chapter 12",
+                "relative-payoff weight=$(tournament_weight)";
+                trait_type = "TournamentIncentiveTrait", parent_id = base.id))
     end
-
-    Dict("version" => "1.0.0", "world" => world)
+    StrategicWorld(base.id, base.game, vcat(base.traits, traits), prov, base.metadata)
 end
 
 # ╔═╡ 00000001-0000-0000-0000-000000000013
-world = build_world(;
-    n_players = n_players,
-    player_type = player_type,
-    structure_type = structure_type,
-    repetitions = repetitions,
-    discount_factor = discount_factor,
-    include_commitment = include_commitment,
-    include_burned_bridge = include_burned_bridge,
-    include_brinkmanship = include_brinkmanship,
-    include_open_world = include_open_world,
-    emergence_rate = emergence_rate,
-)
+md"## Solve it"
 
 # ╔═╡ 00000001-0000-0000-0000-000000000014
-md"## Summary"
+@bind solver_choice Select([
+    "backward" => "BackwardInduction (simultaneous Nash)",
+    "dominance" => "IteratedDominance (rationalizable set)",
+    "nash" => "NashEquilibrium (pure + mixed)"
+])
 
 # ╔═╡ 00000001-0000-0000-0000-000000000015
-begin
-    w = world["world"]
-    n_traits = length(get(w, "traits", []))
-    n_prov = length(w["provenance"])
-    md"""
-    - **Players:** $(length(w["players"]))
-    - **Actions:** $(length(w["actions"]))
-    - **Structure:** `$(w["structure"]["type"])`
-    - **Traits stacked:** $(n_traits)
-    - **Provenance nodes:** $(n_prov)
-    - **Open-world:** $(haskey(w, "open_world") ? "yes" : "no")
-    """
+solution = let
+    if solver_choice == "backward"
+        solve(world, BackwardInduction())
+    elseif solver_choice == "dominance"
+        solve(world, IteratedDominance())
+    else
+        solve(world, NashEquilibrium())
+    end
 end
 
 # ╔═╡ 00000001-0000-0000-0000-000000000016
-md"## Emitted JGDL"
+md"### Equilibrium"
 
 # ╔═╡ 00000001-0000-0000-0000-000000000017
-Text(JSON3.write(world, allow_inf=false))
+# Render the solver output in a solver-specific way. Every branch pulls its
+# provenance from the actual returned object — no hand-written dicts.
+equilibrium_summary = if solution isa Solution
+    path = isempty(solution.equilibrium_path) ? "(none found)" :
+        join((string(a.id) for a in solution.equilibrium_path), " → ")
+    payoffs = join(("$k=$(round(v; digits=2))" for (k, v) in solution.payoffs), ", ")
+    md"""
+    - **Path:** $(path)
+    - **Payoffs:** $(payoffs)
+    """
+elseif solution isa IteratedDominanceResult
+    sets = join(
+        ("$(s.player_id) → {$(join(s.surviving_actions, ", "))}" for s in solution.sets),
+        "; ")
+    md"""
+    - **Rationalizable sets:** $(sets)
+    - **Eliminations:** $(length(solution.eliminations))
+    """
+elseif solution isa MixedNashResult
+    pure = isempty(solution.pure_nash) ? "none" :
+        join(("($(n[1]), $(n[2]))" for n in solution.pure_nash), ", ")
+    mixed = solution.mixed_equilibrium === nothing ? "none (or degenerate)" :
+        string(solution.mixed_equilibrium)
+    md"""
+    - **Pure Nash:** $(pure)
+    - **Mixed Nash:** $(mixed)
+    """
+end
 
 # ╔═╡ 00000001-0000-0000-0000-000000000018
-md"## Provenance chain"
+md"### Provenance chain"
 
 # ╔═╡ 00000001-0000-0000-0000-000000000019
+# The solver's own chain — the LLM explanation layer reads from this graph.
+provenance_chain = if solution isa Solution
+    solution.provenance_chain
+elseif solution isa IteratedDominanceResult
+    solution.provenance_chain
+else
+    solution.provenance
+end
+
+# ╔═╡ 00000001-0000-0000-0000-00000000001a
 md"""
 $(join([
-    "**$(i).** `$(node["operation"])`" *
-    (haskey(node, "trait_type") ? " ($(node["trait_type"]))" : "") *
-    " — *$(node["chapter_ref"])*  \n$(get(node, "rationale", ""))"
-    for (i, node) in enumerate(world["world"]["provenance"])
+    "**$(i).** `$(n.operation)`" *
+    (n.trait_type === nothing ? "" : " ($(n.trait_type))") *
+    " — *$(n.chapter_ref)*" *
+    (n.theoretical_origin === nothing ? "" : "  \n    _source: $(n.theoretical_origin)_") *
+    "  \n    $(n.rationale)"
+    for (i, n) in enumerate(provenance_chain)
 ], "\n\n"))
+"""
+
+# ╔═╡ 00000001-0000-0000-0000-00000000001b
+md"---
+## Repeated play (Chapter 4)"
+
+# ╔═╡ 00000001-0000-0000-0000-00000000001c
+md"""
+Pick a strategy for each player and simulate `horizon` rounds with the
+baseline payoff matrix. TFT vs TFT cooperates; TFT vs AllDefect converges
+to mutual defection; GrimTrigger retaliates forever after the first defection.
+"""
+
+# ╔═╡ 00000001-0000-0000-0000-00000000001d
+@bind p1_strategy Select([
+    "tft" => "TitForTat",
+    "grim" => "GrimTrigger",
+    "pavlov" => "Pavlov (win-stay, lose-shift)",
+    "alldefect" => "AlwaysDefect"
+])
+
+# ╔═╡ 00000001-0000-0000-0000-00000000001e
+@bind p2_strategy Select([
+    "tft" => "TitForTat",
+    "grim" => "GrimTrigger",
+    "pavlov" => "Pavlov (win-stay, lose-shift)",
+    "alldefect" => "AlwaysDefect"
+])
+
+# ╔═╡ 00000001-0000-0000-0000-00000000001f
+@bind horizon Slider(5:5:100; default = 20, show_value = true)
+
+# ╔═╡ 00000001-0000-0000-0000-000000000020
+@bind discount_factor Slider(0.1:0.05:0.99; default = 0.95, show_value = true)
+
+# ╔═╡ 00000001-0000-0000-0000-000000000021
+repeated_result = let
+    mk(choice, opp) = choice == "tft" ? TitForTat(opp) :
+                      choice == "grim" ? GrimTrigger(opp) :
+                      choice == "pavlov" ? Pavlov(opp) :
+                      AlwaysDefect(opp)
+    strategies = Dict{Symbol, PlayerStrategy}(
+        :p1 => mk(p1_strategy, :p2),
+        :p2 => mk(p2_strategy, :p1)
+    )
+    simulate(world, strategies; horizon = horizon, discount_factor = discount_factor)
+end
+
+# ╔═╡ 00000001-0000-0000-0000-000000000022
+repeated_summary = let
+    coop = count(r -> all(a -> occursin("cooperate", string(a)), values(r)),
+        repeated_result.trajectory)
+    defect = count(r -> all(a -> occursin("defect", string(a)), values(r)),
+        repeated_result.trajectory)
+    n = length(repeated_result.trajectory)
+    payoffs = join(
+        ("$k=$(round(v; digits=2))" for (k, v) in repeated_result.discounted_payoffs),
+        ", ")
+    md"""
+    - **Rounds of mutual cooperation:** $(coop) / $(n)
+    - **Rounds of mutual defection:** $(defect) / $(n)
+    - **Discounted payoffs:** $(payoffs)
+    """
+end
+
+# ╔═╡ 00000001-0000-0000-0000-000000000023
+md"### Simulation provenance"
+
+# ╔═╡ 00000001-0000-0000-0000-000000000024
+md"""
+$(join([
+    "**$(i).** `$(n.operation)` — *$(n.chapter_ref)*" *
+    (n.theoretical_origin === nothing ? "" : "  \n    _source: $(n.theoretical_origin)_") *
+    "  \n    $(n.rationale)"
+    for (i, n) in enumerate(repeated_result.provenance_chain)
+], "\n\n"))
+"""
+
+# ╔═╡ 00000001-0000-0000-0000-000000000025
+md"---
+## Load a compliance fixture
+
+Pick any of the authored JGDL fixtures under `jgdl/compliance/tests/` to
+round-trip it through `from_jgdl` and run the expected solver."
+
+# ╔═╡ 00000001-0000-0000-0000-000000000026
+fixture_dir = joinpath(@__DIR__, "..", "..", "jgdl", "compliance", "tests")
+
+# ╔═╡ 00000001-0000-0000-0000-000000000027
+fixture_files = sort(filter(f -> endswith(f, ".json"), readdir(fixture_dir)))
+
+# ╔═╡ 00000001-0000-0000-0000-000000000028
+@bind fixture_choice Select(fixture_files)
+
+# ╔═╡ 00000001-0000-0000-0000-000000000029
+fixture_doc = JSON.parsefile(joinpath(fixture_dir, fixture_choice))
+
+# ╔═╡ 00000001-0000-0000-0000-00000000002a
+fixture_world = from_jgdl(fixture_doc["jgdl"])
+
+# ╔═╡ 00000001-0000-0000-0000-00000000002b
+fixture_summary = md"""
+- **ID:** $(fixture_doc["id"])
+- **Concept:** $(fixture_doc["concept"])
+- **Expected solver:** $(get(fixture_doc["expected"], "solver", "—"))
+- **Players:** $(length(get(fixture_world.metadata, "actions_raw", [])))
+- **Traits parsed:** $(length(fixture_world.traits))
+- **Provenance nodes:** $(length(fixture_world.provenance))
 """
 
 # ╔═╡ Cell order:
 # ╟─00000001-0000-0000-0000-000000000002
 # ╠═00000001-0000-0000-0000-000000000001
 # ╟─00000001-0000-0000-0000-000000000003
-# ╠═00000001-0000-0000-0000-000000000004
+# ╟─00000001-0000-0000-0000-000000000004
 # ╠═00000001-0000-0000-0000-000000000005
-# ╟─00000001-0000-0000-0000-000000000006
+# ╠═00000001-0000-0000-0000-000000000006
 # ╠═00000001-0000-0000-0000-000000000007
 # ╠═00000001-0000-0000-0000-000000000008
-# ╠═00000001-0000-0000-0000-000000000009
-# ╟─00000001-0000-0000-0000-00000000000a
+# ╟─00000001-0000-0000-0000-000000000009
+# ╠═00000001-0000-0000-0000-00000000000a
 # ╠═00000001-0000-0000-0000-00000000000b
 # ╠═00000001-0000-0000-0000-00000000000c
-# ╠═00000001-0000-0000-0000-00000000000d
-# ╟─00000001-0000-0000-0000-00000000000e
+# ╟─00000001-0000-0000-0000-00000000000d
+# ╠═00000001-0000-0000-0000-00000000000e
 # ╠═00000001-0000-0000-0000-00000000000f
 # ╠═00000001-0000-0000-0000-000000000010
 # ╟─00000001-0000-0000-0000-000000000011
-# ╟─00000001-0000-0000-0000-000000000012
-# ╠═00000001-0000-0000-0000-000000000013
-# ╟─00000001-0000-0000-0000-000000000014
+# ╠═00000001-0000-0000-0000-000000000012
+# ╟─00000001-0000-0000-0000-000000000013
+# ╠═00000001-0000-0000-0000-000000000014
 # ╠═00000001-0000-0000-0000-000000000015
 # ╟─00000001-0000-0000-0000-000000000016
 # ╠═00000001-0000-0000-0000-000000000017
 # ╟─00000001-0000-0000-0000-000000000018
 # ╠═00000001-0000-0000-0000-000000000019
+# ╠═00000001-0000-0000-0000-00000000001a
+# ╟─00000001-0000-0000-0000-00000000001b
+# ╟─00000001-0000-0000-0000-00000000001c
+# ╠═00000001-0000-0000-0000-00000000001d
+# ╠═00000001-0000-0000-0000-00000000001e
+# ╠═00000001-0000-0000-0000-00000000001f
+# ╠═00000001-0000-0000-0000-000000000020
+# ╠═00000001-0000-0000-0000-000000000021
+# ╠═00000001-0000-0000-0000-000000000022
+# ╟─00000001-0000-0000-0000-000000000023
+# ╠═00000001-0000-0000-0000-000000000024
+# ╟─00000001-0000-0000-0000-000000000025
+# ╠═00000001-0000-0000-0000-000000000026
+# ╠═00000001-0000-0000-0000-000000000027
+# ╠═00000001-0000-0000-0000-000000000028
+# ╠═00000001-0000-0000-0000-000000000029
+# ╠═00000001-0000-0000-0000-00000000002a
+# ╠═00000001-0000-0000-0000-00000000002b

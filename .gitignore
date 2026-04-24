@@ -19,6 +19,11 @@
 .vscode/
 *.swp
 
+# Finder / OS-level duplicates (the " backup N" suffix is the tell)
+**/* backup *.jl
+**/* backup *.json
+**/* backup *.md
+
 # Strategic engine local state
 ~/.strategic/
 /.strategic/
