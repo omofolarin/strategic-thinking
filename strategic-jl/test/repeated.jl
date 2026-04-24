@@ -57,9 +57,10 @@ using Strategic
             horizon = 5)
         @test !isempty(result.provenance_chain)
         @test all(n -> n.chapter_ref == "Chapter 4", result.provenance_chain)
-        @test any(n -> n.theoretical_origin !== nothing &&
-                      occursin("Axelrod", n.theoretical_origin),
-                  result.provenance_chain)
+        @test any(
+            n -> n.theoretical_origin !== nothing &&
+                 occursin("Axelrod", n.theoretical_origin),
+            result.provenance_chain)
         @test any(n -> n.operation == "cooperation_emerged", result.provenance_chain)
     end
 end

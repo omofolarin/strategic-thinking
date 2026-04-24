@@ -48,47 +48,56 @@ include("jgdl/validate.jl")
 include("elicitation/payoff_elicitation.jl")
 include("dsl/macro.jl")
 
-export
-    StrategicWorld, Player, Action, State, LazyGameTree,
-    ProvenanceNode, GameTrait, WithTrait,
-    # Foundation (Ch 1–4)
-    Tale, TALES, tale, tales_covering,
-    InformationSet, SequentialInvariants, validate_sequential, look_ahead_depth,
-    DominanceRelation, RationalizableSet, IteratedDominance, IteratedDominanceResult, dominates,
-    TitForTat, GrimTrigger, Pavlov, GenerousTFT, choose_action,
-    # Modifier traits (Ch 5–8)
-    CommitmentTrait, CredibleThreatTrait, BurnedBridgeTrait,
-    MixedStrategyTrait, BrinkmanshipTrait,
-    CoordinationDeviceTrait, VotingRuleTrait,
-    BargainingProtocolTrait, TournamentIncentiveTrait, BayesianBeliefTrait,
-    solve_with_focal,
-    # Solvers
-    BackwardInduction, NashEquilibrium, MixedNashResult,
-    VotingSolver, VotingResult,
-    BargainingSolver, BargainingResult,
-    BayesianNashSolver, BayesianNashResult,
-    RepeatedGameSolver, RepeatedGameResult, AlwaysDefect,
-    Solution, SolverMethod, PlayerStrategy,
-    solve, simulate,
-    # JGDL
-    to_jgdl, from_jgdl, world_id, validate_jgdl, ValidationError,
-    # Elicitation (LLM-assisted payoff construction)
-    PayoffLayerEstimate, ElicitedOutcomePayoff, ElicitedPayoffMatrix,
-    to_payoff_matrix, mean_confidence, build_world_from_elicitation, elicit_layer,
-    PAYOFF_LAYERS,
-    # DSL
-    strategic, @strategic,
-    # Inverse toolkit (Phase 2)
-    ObservedPlay, HypothesisWorld, PosteriorWorldDistribution, ranked,
-    infer_from_observations,
-    NarrowingSession, add_observation!, prune!, rule_in!, current_ranking,
-    StructuralBreak, detect_structural_break,
-    # Antifragile toolkit (Phase 3)
-    WorldMutationTemplate, SurpriseEvent, SurpriseDetector,
-    detect_surprise, mutate_world,
-    DiscoveredPlayer, discover_players,
-    LatentConfounderHypothesis, detect_latent_confounder,
-    Hedge, HedgeActivation, evaluate_hedges, parse_jgdl_hedges,
-    ShadowPlayer, OpenWorldGame, AntifragileSolution, solve_antifragile
+# Core types
+export StrategicWorld, Player, Action, State, LazyGameTree
+export ProvenanceNode, GameTrait, WithTrait
+export Solution, SolverMethod, PlayerStrategy
+
+# Foundation (Ch 1–4)
+export Tale, TALES, tale, tales_covering
+export InformationSet, SequentialInvariants, validate_sequential, look_ahead_depth
+export DominanceRelation, RationalizableSet, IteratedDominance, IteratedDominanceResult
+export dominates
+export TitForTat, GrimTrigger, Pavlov, GenerousTFT, choose_action
+
+# Modifier traits (Ch 5–13)
+export CommitmentTrait, CredibleThreatTrait, BurnedBridgeTrait
+export MixedStrategyTrait, BrinkmanshipTrait
+export CoordinationDeviceTrait, VotingRuleTrait
+export BargainingProtocolTrait, TournamentIncentiveTrait, BayesianBeliefTrait
+export solve_with_focal
+
+# Solvers
+export BackwardInduction, NashEquilibrium, MixedNashResult
+export VotingSolver, VotingResult
+export BargainingSolver, BargainingResult
+export BayesianNashSolver, BayesianNashResult
+export RepeatedGameSolver, RepeatedGameResult, AlwaysDefect
+export solve, simulate
+
+# JGDL
+export to_jgdl, from_jgdl, world_id, validate_jgdl, ValidationError
+
+# Elicitation (LLM-assisted payoff construction)
+export PayoffLayerEstimate, ElicitedOutcomePayoff, ElicitedPayoffMatrix
+export to_payoff_matrix, mean_confidence, build_world_from_elicitation, elicit_layer
+export PAYOFF_LAYERS
+
+# DSL
+export strategic, @strategic
+
+# Inverse toolkit (Phase 2)
+export ObservedPlay, HypothesisWorld, PosteriorWorldDistribution, ranked
+export infer_from_observations
+export NarrowingSession, add_observation!, prune!, rule_in!, current_ranking
+export StructuralBreak, detect_structural_break
+
+# Antifragile toolkit (Phase 3)
+export WorldMutationTemplate, SurpriseEvent, SurpriseDetector
+export detect_surprise, mutate_world
+export DiscoveredPlayer, discover_players
+export LatentConfounderHypothesis, detect_latent_confounder
+export Hedge, HedgeActivation, evaluate_hedges, parse_jgdl_hedges
+export ShadowPlayer, OpenWorldGame, AntifragileSolution, solve_antifragile
 
 end # module Strategic

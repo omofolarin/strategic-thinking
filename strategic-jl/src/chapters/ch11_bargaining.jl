@@ -42,33 +42,34 @@ function solve(world::StrategicWorld, ::BargainingSolver)::BargainingResult
         t = world.traits[trait]
         players = t.players_order
         pie = t.pie
-        δ   = t.discount_factor
+        δ = t.discount_factor
     else
         # Fall back to structure metadata
         structure = get(world.metadata, "structure", Dict())
-        δ   = Float64(get(structure, "discount_factor", 0.8))
+        δ = Float64(get(structure, "discount_factor", 0.8))
         pie = Float64(get(world.metadata, "surplus", 100.0))
         actions = get(world.metadata, "actions", Action[])
         players = unique(a.player_id for a in actions)
     end
 
     length(players) < 2 && error("BargainingSolver: need at least 2 players")
-    proposer  = players[1]
+    proposer = players[1]
     responder = players[2]
 
-    proposer_share  = pie * 1.0 / (1.0 + δ)
-    responder_share = pie * δ   / (1.0 + δ)
+    proposer_share = pie * 1.0 / (1.0 + δ)
+    responder_share = pie * δ / (1.0 + δ)
 
-    push!(prov, ProvenanceNode(
-        "bargaining_spe", "Chapter 11",
-        "Rubinstein SPE: proposer=$(round(proposer_share; digits=2)), " *
-        "responder=$(round(responder_share; digits=2)). " *
-        "Formula: proposer=pie/(1+δ), responder=pie×δ/(1+δ), δ=$(δ). " *
-        "Responder accepts: their share equals continuation value.";
-        parent_id = "",
-        theoretical_origin = "Rubinstein, Perfect Equilibrium in a Bargaining Model (1982)"
-    ))
+    push!(prov,
+        ProvenanceNode(
+            "bargaining_spe", "Chapter 11",
+            "Rubinstein SPE: proposer=$(round(proposer_share; digits=2)), " *
+            "responder=$(round(responder_share; digits=2)). " *
+            "Formula: proposer=pie/(1+δ), responder=pie×δ/(1+δ), δ=$(δ). " *
+            "Responder accepts: their share equals continuation value.";
+            parent_id = "",
+            theoretical_origin = "Rubinstein, Perfect Equilibrium in a Bargaining Model (1982)"
+        ))
 
     BargainingResult(proposer, responder, proposer_share, responder_share,
-                     pie, δ, true, prov)
+        pie, δ, true, prov)
 end

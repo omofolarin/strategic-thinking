@@ -14,10 +14,10 @@ struct BurnedBridgeTrait <: GameTrait
 end
 
 register_trait!(CredibleThreatTrait, Set([:available_actions]))
-register_trait!(BurnedBridgeTrait,   Set([:available_actions]))
+register_trait!(BurnedBridgeTrait, Set([:available_actions]))
 
 function available_actions(g::WithTrait{<:AbstractGame, CredibleThreatTrait},
-                           state::State, player::Player)
+        state::State, player::Player)
     actions = available_actions(g.inner, state, player)
     t = g.trait
     # If the trigger has fired and this is the threatener, only retaliation is available
@@ -30,7 +30,7 @@ function available_actions(g::WithTrait{<:AbstractGame, CredibleThreatTrait},
 end
 
 function available_actions(g::WithTrait{<:AbstractGame, BurnedBridgeTrait},
-                           state::State, player::Player)
+        state::State, player::Player)
     actions = available_actions(g.inner, state, player)
     if player.id == g.trait.player_id
         return filter(a -> a.id != g.trait.forbidden_action, actions)

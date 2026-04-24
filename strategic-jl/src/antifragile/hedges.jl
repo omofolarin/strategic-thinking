@@ -23,9 +23,9 @@ Check each hedge's trigger against the observation. Return activations
 for every hedge that fires, each with a ProvenanceNode.
 """
 function evaluate_hedges(
-    hedges::Vector{Hedge},
-    obs::ObservedPlay,
-    state::State
+        hedges::Vector{Hedge},
+        obs::ObservedPlay,
+        state::State
 )::Vector{HedgeActivation}
     activations = HedgeActivation[]
     for h in hedges
@@ -51,7 +51,7 @@ Trigger expressions are parsed as simple keyword checks.
 function parse_jgdl_hedges(hedge_list::Vector)::Vector{Hedge}
     map(hedge_list) do h
         trigger_expr = get(h, "trigger", "")
-        payoff_raw   = get(h, "payoff_profile", Dict())
+        payoff_raw = get(h, "payoff_profile", Dict())
         payoff = Dict(Symbol(k) => Float64(v) for (k, v) in payoff_raw)
         Hedge(
             Symbol(get(h, "id", "hedge")),
@@ -74,7 +74,8 @@ function _compile_trigger(expr::String)::Function
         # Pattern: "p2_action == defect_2"  →  obs.action_taken == :defect_2
         m = match(r"(\w+)_action\s*==\s*(\w+)", clause)
         if m !== nothing
-            pid = Symbol(m[1]); aid = Symbol(m[2])
+            pid = Symbol(m[1]);
+            aid = Symbol(m[2])
             push!(checks, let pid=pid, aid=aid
                 (obs, state) -> obs.player_id == pid && obs.action_taken == aid
             end)
@@ -83,16 +84,20 @@ function _compile_trigger(expr::String)::Function
         # Pattern: "prior_rounds_cooperative >= 3"  →  state.variables["prior_rounds_cooperative"] >= 3
         m = match(r"(\w+)\s*(>=|<=|==|>|<)\s*(\d+)", clause)
         if m !== nothing
-            key = m[1]; op = m[2]; val = parse(Int, m[3])
-            push!(checks, let key=key, op=op, val=val
-                (obs, state) -> begin
-                    v = get(state.variables, Symbol(key), get(state.variables, key, 0))
-                    op == ">=" ? v >= val :
-                    op == "<=" ? v <= val :
-                    op == ">"  ? v >  val :
-                    op == "<"  ? v <  val : v == val
-                end
-            end)
+            key = m[1];
+            op = m[2];
+            val = parse(Int, m[3])
+            push!(checks,
+                let key=key, op=op, val=val
+                    (obs,
+                        state) -> begin
+                        v = get(state.variables, Symbol(key), get(state.variables, key, 0))
+                        op == ">=" ? v >= val :
+                        op == "<=" ? v <= val :
+                        op == ">" ? v > val :
+                        op == "<" ? v < val : v == val
+                    end
+                end)
             continue
         end
     end

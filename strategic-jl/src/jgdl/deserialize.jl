@@ -16,14 +16,14 @@ function from_jgdl(doc::AbstractDict)::StrategicWorld
     # Normalize inner-dict keys to Symbol so solvers can use `get(pf, :p1, …)` uniformly.
     payoffs = _normalize_payoffs(raw_payoffs)
 
-    metadata = Dict{String,Any}(
-        "players"       => get(w, "players", []),
-        "structure"     => get(w, "structure", Dict()),
-        "payoffs"       => payoffs,
+    metadata = Dict{String, Any}(
+        "players" => get(w, "players", []),
+        "structure" => get(w, "structure", Dict()),
+        "payoffs" => payoffs,
         "initial_state" => get(w, "initial_state", Dict()),
-        "move_order"    => _extract_order(w),
-        "actions_raw"   => get(w, "actions", []),
-        "players_raw"   => get(w, "players", []),
+        "move_order" => _extract_order(w),
+        "actions_raw" => get(w, "actions", []),
+        "players_raw" => get(w, "players", [])
     )
     for (k, v) in get(w, "metadata", Dict())
         metadata[k] = v
@@ -52,7 +52,7 @@ function from_jgdl(doc::AbstractDict)::StrategicWorld
         elseif ttype == "BargainingProtocol"
             haskey(params, "discount_factor") &&
                 (metadata["structure"] = merge(get(metadata, "structure", Dict()),
-                                               Dict("discount_factor" => Float64(params["discount_factor"]))))
+                    Dict("discount_factor" => Float64(params["discount_factor"]))))
             haskey(params, "surplus") && (metadata["surplus"] = Float64(params["surplus"]))
             haskey(params, "pie") && (metadata["surplus"] = Float64(params["pie"]))
         elseif ttype == "BayesianBelief"
@@ -95,17 +95,18 @@ end
 function _parse_single_trait(ttype::AbstractString, params::AbstractDict)
     if ttype == "BurnedBridge"
         BurnedBridgeTrait(Symbol(get(params, "player_id", "")),
-                          Symbol(get(params, "forbidden_action", "")))
+            Symbol(get(params, "forbidden_action", "")))
     elseif ttype == "Commitment"
         CommitmentTrait(Symbol(get(params, "player_id", "")),
-                        Symbol(get(params, "committed_action", "")),
-                        Float64(get(params, "penalty_for_deviation", 100.0)))
+            Symbol(get(params, "committed_action", "")),
+            Float64(get(params, "penalty_for_deviation", 100.0)))
     elseif ttype == "CredibleThreat"
-        CredibleThreatTrait(Symbol(get(params, "threatener_id",
-                                         get(params, "player_id", ""))),
-                            Symbol(get(params, "trigger_action", "")),
-                            Symbol(get(params, "retaliation_action", "")),
-                            Float64(get(params, "credibility", 1.0)))
+        CredibleThreatTrait(
+            Symbol(get(params, "threatener_id",
+                get(params, "player_id", ""))),
+            Symbol(get(params, "trigger_action", "")),
+            Symbol(get(params, "retaliation_action", "")),
+            Float64(get(params, "credibility", 1.0)))
     elseif ttype == "MixedStrategy"
         dist = Dict{Symbol, Float64}()
         for (k, v) in get(params, "distribution", Dict())
@@ -115,13 +116,14 @@ function _parse_single_trait(ttype::AbstractString, params::AbstractDict)
     elseif ttype == "Brinkmanship"
         catp = Dict{Symbol, Float64}()
         for (k, v) in get(params, "catastrophe_payoff",
-                          get(params, "catastrophic_payoff", Dict()))
+            get(params, "catastrophic_payoff", Dict()))
             catp[Symbol(k)] = Float64(v)
         end
-        BrinkmanshipTrait(Symbol(get(params, "trigger_action",
-                                       get(params, "risky_action", ""))),
-                          Float64(get(params, "catastrophe_probability", 0.0)),
-                          catp)
+        BrinkmanshipTrait(
+            Symbol(get(params, "trigger_action",
+                get(params, "risky_action", ""))),
+            Float64(get(params, "catastrophe_probability", 0.0)),
+            catp)
     elseif ttype == "TournamentIncentive"
         w = Float64(get(params, "weight_on_relative", get(params, "weight", 1.0)))
         TournamentIncentiveTrait(w)
@@ -167,7 +169,8 @@ function _normalize_payoffs(raw::AbstractDict)
     out
 end
 
-function _extract_order(w::AbstractDict)    structure = get(w, "structure", Dict())
+function _extract_order(w::AbstractDict)
+    structure = get(w, "structure", Dict())
     order = get(structure, "order", nothing)
     order === nothing && return Symbol[]
     [Symbol(id) for id in order]
@@ -183,11 +186,11 @@ function _dict_to_provenance(d::AbstractDict)::ProvenanceNode
         d["rationale"],
         d["parent_id"],
         now(),   # timestamp not round-tripped for simplicity
-        Symbol(d["author"]),
+        Symbol(d["author"])
     )
 end
 
 # Minimal concrete game type for deserialized worlds (no live dispatch needed)
 struct _NullGame <: AbstractGame end
 available_actions(::_NullGame, ::State, ::Player) = Action[]
-payoff(::_NullGame, ::State) = Dict{Symbol,Float64}()
+payoff(::_NullGame, ::State) = Dict{Symbol, Float64}()

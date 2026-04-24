@@ -7,7 +7,7 @@
 # Invariant: no Solution may leave a trait layer without appending a
 # ProvenanceNode citing which trait applied and why.
 
-struct WithTrait{G<:AbstractGame, T<:GameTrait} <: AbstractGame
+struct WithTrait{G <: AbstractGame, T <: GameTrait} <: AbstractGame
     inner::G
     trait::T
 end
@@ -15,36 +15,38 @@ end
 # Default fallback: delegate unhandled messages to the inner game.
 # Each chapter trait overrides the functions it meaningfully changes.
 
-available_actions(g::AbstractGame, state::State, player::Player) =
+function available_actions(g::AbstractGame, state::State, player::Player)
     error("available_actions not implemented for $(typeof(g))")
+end
 
-payoff(g::AbstractGame, state::State) =
-    error("payoff not implemented for $(typeof(g))")
+payoff(g::AbstractGame, state::State) = error("payoff not implemented for $(typeof(g))")
 
-available_actions(g::WithTrait, state::State, player::Player) =
+function available_actions(g::WithTrait, state::State, player::Player)
     available_actions(g.inner, state, player)
+end
 
 payoff(g::WithTrait, state::State) = payoff(g.inner, state)
 
 function with_trait(world::StrategicWorld, trait::GameTrait;
-                    chapter_ref::String,
-                    rationale::String,
-                    theoretical_origin::Union{String, Nothing} = nothing,
-                    author::Symbol = :user)
+        chapter_ref::String,
+        rationale::String,
+        theoretical_origin::Union{String, Nothing} = nothing,
+        author::Symbol = :user)
     new_game = WithTrait(world.game, trait)
     new_world = StrategicWorld(world.id, new_game,
-                               vcat(world.traits, [trait]),
-                               copy(world.provenance),
-                               copy(world.metadata))
-    append_provenance!(new_world, ProvenanceNode(
-        "applied_trait",
-        chapter_ref,
-        rationale;
-        trait_type = string(nameof(typeof(trait))),
-        parent_id = world.id,
-        theoretical_origin = theoretical_origin,
-        author = author,
-    ))
+        vcat(world.traits, [trait]),
+        copy(world.provenance),
+        copy(world.metadata))
+    append_provenance!(new_world,
+        ProvenanceNode(
+            "applied_trait",
+            chapter_ref,
+            rationale;
+            trait_type = string(nameof(typeof(trait))),
+            parent_id = world.id,
+            theoretical_origin = theoretical_origin,
+            author = author
+        ))
     new_world
 end
 
@@ -64,7 +66,7 @@ const DISPATCH_TARGETS = Set([
     :sample_action,
     :select_equilibrium,
     :update_beliefs,
-    :aggregate,
+    :aggregate
 ])
 
 """

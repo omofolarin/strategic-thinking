@@ -5,7 +5,6 @@ using Strategic
 # See docs/trait-composition-contract.md for the normative contract.
 
 @testset "Trait composition contract" begin
-
     @testset "Every shipped trait is registered" begin
         # Every concrete GameTrait loaded by the module must appear in
         # TRAIT_DISPATCH_TARGETS. Anything missing is either an unshipped
@@ -16,7 +15,7 @@ using Strategic
             Strategic.BurnedBridgeTrait,
             Strategic.MixedStrategyTrait,
             Strategic.BrinkmanshipTrait,
-            Strategic.TournamentIncentiveTrait,
+            Strategic.TournamentIncentiveTrait
         ]
         for T in concrete_traits
             @test haskey(Strategic.TRAIT_DISPATCH_TARGETS, T)

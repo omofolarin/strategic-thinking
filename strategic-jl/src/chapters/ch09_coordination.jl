@@ -23,19 +23,21 @@ function solve_with_focal(world::StrategicWorld, base_solution::Solution)::Solut
     path = base_solution.equilibrium_path
 
     # Check if current equilibrium already uses the focal action
-    uses_focal = any(a -> a.id == t.focal_action ||
-                          endswith(string(a.id), string(t.focal_action)), path)
+    uses_focal = any(
+        a -> a.id == t.focal_action ||
+             endswith(string(a.id), string(t.focal_action)), path)
 
-    prov = vcat(base_solution.provenance_chain, [ProvenanceNode(
-        "applied_trait", "Chapter 9",
-        uses_focal ?
+    prov = vcat(base_solution.provenance_chain,
+        [ProvenanceNode(
+            "applied_trait", "Chapter 9",
+            uses_focal ?
             "Focal equilibrium selected: $(t.focal_action) is salient (salience=$(t.salience)). " *
             "Schelling: without communication, players converge on the culturally obvious option." :
             "No equilibrium uses focal action $(t.focal_action); returning base equilibrium.";
-        trait_type = "CoordinationDevice",
-        parent_id = "",
-        theoretical_origin = "Schelling, The Strategy of Conflict (1960), Chapter 3"
-    )])
+            trait_type = "CoordinationDevice",
+            parent_id = "",
+            theoretical_origin = "Schelling, The Strategy of Conflict (1960), Chapter 3"
+        )])
 
     Solution(path, base_solution.payoffs, prov)
 end

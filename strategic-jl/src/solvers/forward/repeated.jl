@@ -63,19 +63,21 @@ For each round:
 Discounted payoff for player p is `Σ_t δ^t · u_p(stage_t)`.
 """
 function solve(world::StrategicWorld, method::RepeatedGameSolver)::RepeatedGameResult
-    matrix  = get(get(world.metadata, "payoffs", Dict()), "matrix", Dict())
+    matrix = get(get(world.metadata, "payoffs", Dict()), "matrix", Dict())
     actions = get(world.metadata, "actions", Action[])
-    isempty(matrix) && error("RepeatedGameSolver: world.metadata[\"payoffs\"][\"matrix\"] is empty")
+    isempty(matrix) &&
+        error("RepeatedGameSolver: world.metadata[\"payoffs\"][\"matrix\"] is empty")
     isempty(actions) && error("RepeatedGameSolver: world.metadata[\"actions\"] is empty")
 
     player_ids = unique(a.player_id for a in actions)
     players = _players_with_strategies(world, player_ids)
-    acts_by_player = Dict(pid => [a for a in actions if a.player_id == pid] for pid in player_ids)
+    acts_by_player = Dict(pid => [a for a in actions if a.player_id == pid]
+    for pid in player_ids)
 
     δ = method.discount_factor
-    trajectory    = Dict{Symbol, Symbol}[]
+    trajectory = Dict{Symbol, Symbol}[]
     stage_payoffs = Dict{Symbol, Float64}[]
-    discounted    = Dict{Symbol, Float64}(pid => 0.0 for pid in player_ids)
+    discounted = Dict{Symbol, Float64}(pid => 0.0 for pid in player_ids)
 
     state = State(Dict{Symbol, Any}(), Tuple{Symbol, Symbol}[], nothing, 0)
 
@@ -91,7 +93,8 @@ function solve(world::StrategicWorld, method::RepeatedGameSolver)::RepeatedGameR
 
         key = _stage_key(player_ids, chosen)
         pf_raw = _lookup_payoff_dict(matrix, key)
-        stage = pf_raw === nothing ? Dict{Symbol, Float64}(pid => 0.0 for pid in player_ids) :
+        stage = pf_raw === nothing ?
+                Dict{Symbol, Float64}(pid => 0.0 for pid in player_ids) :
                 Dict(Symbol(k) => Float64(v) for (k, v) in pf_raw)
 
         push!(trajectory, chosen)
@@ -102,41 +105,45 @@ function solve(world::StrategicWorld, method::RepeatedGameSolver)::RepeatedGameR
 
         # Append the joint move to history *after* each player has chosen,
         # so reciprocity strategies see the completed previous round.
-        new_history = vcat(state.history, [(pid, chosen[pid]) for pid in player_ids if haskey(chosen, pid)])
+        new_history = vcat(state.history, [(pid, chosen[pid])
+                                           for pid in player_ids if haskey(chosen, pid)])
         state = State(state.variables, new_history, nothing, t + 1)
     end
 
     prov = ProvenanceNode[]
-    push!(prov, ProvenanceNode(
-        "repeated_game_setup", "Chapter 4",
-        "Repeated stage game: horizon=$(method.horizon), δ=$(δ), " *
-        "strategies: $(join(["$(p.id)=$(nameof(typeof(p.strategy)))" for p in players], ", ")).";
-        parent_id = "",
-        theoretical_origin = "Axelrod, The Evolution of Cooperation (1984)"
-    ))
+    push!(prov,
+        ProvenanceNode(
+            "repeated_game_setup", "Chapter 4",
+            "Repeated stage game: horizon=$(method.horizon), δ=$(δ), " *
+            "strategies: $(join(["$(p.id)=$(nameof(typeof(p.strategy)))" for p in players], ", ")).";
+            parent_id = "",
+            theoretical_origin = "Axelrod, The Evolution of Cooperation (1984)"
+        ))
 
     # Cooperation emergence annotation — the headline claim of Chapter 4.
     # Count rounds where every player's action contains the substring "cooperate".
     coop_rounds = count(r -> all(aid -> _is_cooperative(aid), values(r)), trajectory)
     if coop_rounds > 0
-        push!(prov, ProvenanceNode(
-            "cooperation_emerged", "Chapter 4",
-            "Mutual cooperation in $(coop_rounds)/$(method.horizon) rounds under " *
-            "discount δ=$(δ). Folk-theorem bound: cooperation sustainable when " *
-            "δ ≥ (T − R)/(T − P), where R/T/P/S are the stage-game payoffs.";
-            parent_id = prov[end].id === nothing ? "" : prov[end].id
-        ))
+        push!(prov,
+            ProvenanceNode(
+                "cooperation_emerged", "Chapter 4",
+                "Mutual cooperation in $(coop_rounds)/$(method.horizon) rounds under " *
+                "discount δ=$(δ). Folk-theorem bound: cooperation sustainable when " *
+                "δ ≥ (T − R)/(T − P), where R/T/P/S are the stage-game payoffs.";
+                parent_id = prov[end].id === nothing ? "" : prov[end].id
+            ))
     end
 
-    push!(prov, ProvenanceNode(
-        "repeated_game_complete", "Chapter 4",
-        "Discounted payoffs: " *
-        join(["$(pid)=$(round(discounted[pid]; digits=3))" for pid in player_ids], ", ");
-        parent_id = prov[end].id === nothing ? "" : prov[end].id
-    ))
+    push!(prov,
+        ProvenanceNode(
+            "repeated_game_complete", "Chapter 4",
+            "Discounted payoffs: " *
+            join(["$(pid)=$(round(discounted[pid]; digits=3))" for pid in player_ids], ", ");
+            parent_id = prov[end].id === nothing ? "" : prov[end].id
+        ))
 
     RepeatedGameResult(trajectory, stage_payoffs, discounted,
-                       method.horizon, δ, prov)
+        method.horizon, δ, prov)
 end
 
 # --- Simulation primitive ------------------------------------------------
@@ -150,9 +157,9 @@ player uses each round. Convenience wrapper over `RepeatedGameSolver` that
 does not require stuffing strategies into `world.metadata`.
 """
 function simulate(world::StrategicWorld,
-                  strategies::Dict{Symbol, <:PlayerStrategy};
-                  horizon::Int = 50,
-                  discount_factor::Float64 = 0.95)::RepeatedGameResult
+        strategies::Dict{Symbol, <:PlayerStrategy};
+        horizon::Int = 50,
+        discount_factor::Float64 = 0.95)::RepeatedGameResult
     meta = copy(world.metadata)
     existing = get(meta, "players", Player[])
     action_ids = unique(a.player_id for a in get(meta, "actions", Action[]))
@@ -165,12 +172,12 @@ function simulate(world::StrategicWorld,
                  base.parameters
         name = base === nothing ? string(pid) : base.name
         push!(overridden, Player(pid, name,
-                                 strat === nothing ? _default_strategy(pid) : strat,
-                                 params))
+            strat === nothing ? _default_strategy(pid) : strat,
+            params))
     end
     meta["players"] = overridden
     new_world = StrategicWorld(world.id, world.game, world.traits,
-                               copy(world.provenance), meta)
+        copy(world.provenance), meta)
     solve(new_world, RepeatedGameSolver(horizon, discount_factor))
 end
 
@@ -179,15 +186,16 @@ end
 function _players_with_strategies(world::StrategicWorld, player_ids::Vector{Symbol})
     existing = get(world.metadata, "players", Player[])
     [begin
-        p = _find_player(existing, pid)
-        if p === nothing
-            Player(pid, string(pid),
-                   _default_strategy(pid),
-                   PlayerParameters(1.0, 0.95, 0.0, 0.0))
-        else
-            p
-        end
-    end for pid in player_ids]
+         p = _find_player(existing, pid)
+         if p === nothing
+             Player(pid, string(pid),
+                 _default_strategy(pid),
+                 PlayerParameters(1.0, 0.95, 0.0, 0.0))
+         else
+             p
+         end
+     end
+     for pid in player_ids]
 end
 
 function _find_player(players, pid::Symbol)
@@ -202,8 +210,9 @@ end
 struct AlwaysDefect <: PlayerStrategy
     opponent_id::Symbol
 end
-choose_action(::AlwaysDefect, ::State, available::Vector{Action}) =
+function choose_action(::AlwaysDefect, ::State, available::Vector{Action})
     _find(available, :defect)
+end
 
 _default_strategy(pid::Symbol) = AlwaysDefect(pid)
 

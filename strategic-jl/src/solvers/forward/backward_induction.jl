@@ -8,9 +8,9 @@ Supports sequential and simultaneous structures. Every meaningful step
 appends a ProvenanceNode citing Chapter 2.
 """
 function solve(world::StrategicWorld, ::BackwardInduction)
-    matrix  = get(get(world.metadata, "payoffs", Dict()), "matrix", Dict())
+    matrix = get(get(world.metadata, "payoffs", Dict()), "matrix", Dict())
     actions = get(world.metadata, "actions", Action[])
-    order   = get(world.metadata, "move_order", Symbol[])
+    order = get(world.metadata, "move_order", Symbol[])
     provenance = ProvenanceNode[]
 
     result = if isempty(order)
@@ -27,7 +27,8 @@ function _solve_sequential(world, matrix, actions, order, provenance)
     # Backward induction: work from last mover to first
     players = reverse(order)
     # Build action map per player
-    acts_by_player = Dict(pid => [a for a in actions if a.player_id == pid] for pid in order)
+    acts_by_player = Dict(pid => [a for a in actions if a.player_id == pid]
+    for pid in order)
 
     # For 2-player sequential: enumerate all paths, pick SPE by backward induction
     p1, p2 = order[1], order[2]
@@ -47,8 +48,8 @@ function _solve_sequential(world, matrix, actions, order, provenance)
             key = "$(a1.id).$(a2.id)"
             pf = _lookup_payoff_dict(matrix, key)
             pf === nothing && continue
-            pf = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k,v) in pf);
-                                         actions = [a1.id, a2.id])
+            pf = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k, v) in pf);
+                actions = [a1.id, a2.id])
             p2_val = get(pf, p2, get(pf, string(p2), 0.0))
             if p2_val > best_p2_payoff
                 best_p2_payoff = p2_val
@@ -59,13 +60,15 @@ function _solve_sequential(world, matrix, actions, order, provenance)
         wildcard_key = "$(a1.id).*"
         wc_pf = _lookup_payoff_dict(matrix, wildcard_key)
         if wc_pf !== nothing && haskey(matrix, wildcard_key)
-            push!(provenance, ProvenanceNode(
-                "backward_induction_step", "Chapter 2",
-                "$(p1) plays $(a1.id): terminal (wildcard)";
-                parent_id = ""
-            ))
-            wc_pf_t = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k,v) in wc_pf);
-                                              actions = [a1.id])
+            push!(provenance,
+                ProvenanceNode(
+                    "backward_induction_step", "Chapter 2",
+                    "$(p1) plays $(a1.id): terminal (wildcard)";
+                    parent_id = ""
+                ))
+            wc_pf_t = _apply_trait_transforms(
+                world, Dict(Symbol(k) => v for (k, v) in wc_pf);
+                actions = [a1.id])
             p1_val = get(wc_pf_t, p1, get(wc_pf_t, string(p1), 0.0))
             if p1_val > best_p1_payoff
                 best_p1_payoff = p1_val
@@ -78,32 +81,35 @@ function _solve_sequential(world, matrix, actions, order, provenance)
         key = "$(a1.id).$(best_p2.id)"
         pf = _lookup_payoff_dict(matrix, key)
         pf === nothing && continue
-        pf = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k,v) in pf);
-                                     actions = [a1.id, best_p2.id])
+        pf = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k, v) in pf);
+            actions = [a1.id, best_p2.id])
         p1_val = get(pf, p1, get(pf, string(p1), 0.0))
-        push!(provenance, ProvenanceNode(
-            "backward_induction_step", "Chapter 2",
-            "$(p2) best-responds to $(a1.id) with $(best_p2.id) (payoff=$(best_p2_payoff))";
-            parent_id = ""
-        ))
+        push!(provenance,
+            ProvenanceNode(
+                "backward_induction_step", "Chapter 2",
+                "$(p2) best-responds to $(a1.id) with $(best_p2.id) (payoff=$(best_p2_payoff))";
+                parent_id = ""
+            ))
         if p1_val > best_p1_payoff
             best_p1_payoff = p1_val
             best_path = [a1, best_p2]
-            best_payoffs = Dict(Symbol(k) => v for (k,v) in pf)
+            best_payoffs = Dict(Symbol(k) => v for (k, v) in pf)
         end
     end
 
-    push!(provenance, ProvenanceNode(
-        "backward_induction_complete", "Chapter 2",
-        "SPE path: $(join(map(a->a.id, best_path), " → "))";
-        parent_id = ""
-    ))
+    push!(provenance,
+        ProvenanceNode(
+            "backward_induction_complete", "Chapter 2",
+            "SPE path: $(join(map(a->a.id, best_path), " → "))";
+            parent_id = ""
+        ))
     Solution(best_path, best_payoffs, provenance)
 end
 
 function _solve_simultaneous(world, matrix, actions, provenance)
     players = unique(a.player_id for a in actions)
-    length(players) != 2 && error("BackwardInduction: simultaneous solver supports 2 players only")
+    length(players) != 2 &&
+        error("BackwardInduction: simultaneous solver supports 2 players only")
     p1, p2 = players[1], players[2]
     p1_acts = [a for a in actions if a.player_id == p1]
     p2_acts = [a for a in actions if a.player_id == p2]
@@ -117,46 +123,59 @@ function _solve_simultaneous(world, matrix, actions, provenance)
             key = "$(a1.id).$(a2.id)"
             pf = _lookup_payoff_dict(matrix, key)
             pf === nothing && continue
-            pf = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k,v) in pf);
-                                         actions = [a1.id, a2.id])
+            pf = _apply_trait_transforms(world, Dict(Symbol(k) => v for (k, v) in pf);
+                actions = [a1.id, a2.id])
             # Check if (a1,a2) is a Nash: no player wants to deviate
             p1_val = get(pf, p1, get(pf, string(p1), 0.0))
             p2_val = get(pf, p2, get(pf, string(p2), 0.0))
-            p1_nash = all(a -> begin
-                k2 = "$(a.id).$(a2.id)"
-                pf2 = _lookup_payoff_dict(matrix, k2)
-                pf2 === nothing ? true : begin
-                    pf2t = _apply_trait_transforms(world, Dict(Symbol(k)=>v for (k,v) in pf2);
-                                                   actions = [a.id, a2.id])
-                    get(pf2t, p1, 0.0) <= p1_val
-                end
-            end, p1_acts)
-            p2_nash = all(a -> begin
-                k2 = "$(a1.id).$(a.id)"
-                pf2 = _lookup_payoff_dict(matrix, k2)
-                pf2 === nothing ? true : begin
-                    pf2t = _apply_trait_transforms(world, Dict(Symbol(k)=>v for (k,v) in pf2);
-                                                   actions = [a1.id, a.id])
-                    get(pf2t, p2, 0.0) <= p2_val
-                end
-            end, p2_acts)
+            p1_nash = all(
+                a -> begin
+                    k2 = "$(a.id).$(a2.id)"
+                    pf2 = _lookup_payoff_dict(matrix, k2)
+                    pf2 === nothing ? true :
+                    begin
+                        pf2t = _apply_trait_transforms(
+                            world, Dict(Symbol(k)=>v for (k, v) in pf2);
+                            actions = [a.id, a2.id])
+                        get(pf2t, p1, 0.0) <= p1_val
+                    end
+                end,
+                p1_acts)
+            p2_nash = all(
+                a -> begin
+                    k2 = "$(a1.id).$(a.id)"
+                    pf2 = _lookup_payoff_dict(matrix, k2)
+                    pf2 === nothing ? true :
+                    begin
+                        pf2t = _apply_trait_transforms(
+                            world, Dict(Symbol(k)=>v for (k, v) in pf2);
+                            actions = [a1.id, a.id])
+                        get(pf2t, p2, 0.0) <= p2_val
+                    end
+                end,
+                p2_acts)
             if p1_nash && p2_nash
-                push!(provenance, ProvenanceNode(
-                    "nash_equilibrium_found", "Chapter 2",
-                    "Nash equilibrium: ($(a1.id), $(a2.id)) payoffs=$(pf)";
-                    parent_id = ""
-                ))
+                push!(provenance,
+                    ProvenanceNode(
+                        "nash_equilibrium_found", "Chapter 2",
+                        "Nash equilibrium: ($(a1.id), $(a2.id)) payoffs=$(pf)";
+                        parent_id = ""
+                    ))
                 best_path = [a1, a2]
-                best_payoffs = Dict(Symbol(k) => v for (k,v) in pf)
+                best_payoffs = Dict(Symbol(k) => v for (k, v) in pf)
             end
         end
     end
 
-    isempty(provenance) && push!(provenance, ProvenanceNode(
-        "no_pure_nash", "Chapter 2", "No pure Nash equilibrium found"; parent_id = ""
-    ))
-    Solution(best_path, best_payoffs, isempty(provenance) ?
-        [ProvenanceNode("backward_induction", "Chapter 2", "complete"; parent_id="")] : provenance)
+    isempty(provenance) && push!(provenance,
+        ProvenanceNode(
+            "no_pure_nash", "Chapter 2", "No pure Nash equilibrium found"; parent_id = ""
+        ))
+    Solution(best_path,
+        best_payoffs,
+        isempty(provenance) ?
+        [ProvenanceNode("backward_induction", "Chapter 2", "complete"; parent_id = "")] :
+        provenance)
 end
 
 """
@@ -170,7 +189,7 @@ Order matches `world.traits`: earlier traits are applied first, so a
 later trait sees the transformed payoff.
 """
 function _apply_trait_transforms(world::StrategicWorld, pf::Dict;
-                                 actions::Vector{Symbol} = Symbol[])::Dict
+        actions::Vector{Symbol} = Symbol[])::Dict
     pf = Dict{Symbol, Float64}(k => Float64(v) for (k, v) in pf)
     for t in world.traits
         pf = _apply_trait(t, pf, actions)
@@ -186,7 +205,7 @@ function _apply_trait(t::TournamentIncentiveTrait, pf::Dict, ::Vector{Symbol})
     length(players) == 2 || return pf
     p1, p2 = players
     Dict(p1 => pf[p1] + w * (pf[p1] - pf[p2]),
-         p2 => pf[p2] + w * (pf[p2] - pf[p1]))
+        p2 => pf[p2] + w * (pf[p2] - pf[p1]))
 end
 
 function _apply_trait(t::CommitmentTrait, pf::Dict, actions::Vector{Symbol})
@@ -210,9 +229,9 @@ function _apply_trait(t::BrinkmanshipTrait, pf::Dict, actions::Vector{Symbol})
     any(a -> a == t.risky_action, actions) || return pf
     p = t.catastrophe_probability
     players = union(keys(pf), keys(t.catastrophic_payoff))
-    Dict{Symbol, Float64}(k =>
-        (1 - p) * get(pf, k, 0.0) + p * get(t.catastrophic_payoff, k, 0.0)
-        for k in players)
+    Dict{Symbol, Float64}(k => (1 - p) * get(pf, k, 0.0) +
+                               p * get(t.catastrophic_payoff, k, 0.0)
+    for k in players)
 end
 
 # CredibleThreat and BurnedBridge are handled at the available-action layer
@@ -225,7 +244,7 @@ end
 function _lookup_payoff_dict(matrix::AbstractDict, key::String)
     haskey(matrix, key) && return matrix[key]
     for (k, v) in matrix
-        if endswith(k, ".*") && startswith(key, k[1:end-1])
+        if endswith(k, ".*") && startswith(key, k[1:(end - 1)])
             return v
         end
     end

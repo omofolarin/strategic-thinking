@@ -3,12 +3,14 @@ using Strategic
 using JSON
 using Dates
 
-const COMPLIANCE_SUITE = joinpath(@__DIR__, "..", "..", "jgdl", "compliance", "compliance_suite.json")
+const COMPLIANCE_SUITE = joinpath(
+    @__DIR__, "..", "..", "jgdl", "compliance", "compliance_suite.json")
 
 # --- Small helpers (defined first so they're visible inside the @testset) --
 
-_player_ids(world::StrategicWorld) =
+function _player_ids(world::StrategicWorld)
     unique(a.player_id for a in get(world.metadata, "actions", Action[]))
+end
 
 function _opponent_of(pid::Symbol, world::StrategicWorld)
     ids = _player_ids(world)
@@ -24,17 +26,19 @@ function _observations_from_initial_state(world::StrategicWorld)
         round_num = Int(get(o, "round", i))
         # Shape A — explicit {player_id, action_taken} rows.
         if haskey(o, "player_id") && haskey(o, "action_taken")
-            push!(out, ObservedPlay(
-                State(Dict{Symbol, Any}(), Tuple{Symbol, Symbol}[], nothing, round_num),
-                Symbol(o["action_taken"]), Symbol(o["player_id"]), now(), 1.0))
+            push!(out,
+                ObservedPlay(
+                    State(Dict{Symbol, Any}(), Tuple{Symbol, Symbol}[], nothing, round_num),
+                    Symbol(o["action_taken"]), Symbol(o["player_id"]), now(), 1.0))
             continue
         end
         # Shape B — one row per round with player_id keys pointing to action_ids.
         for (pid, aid) in o
             string(pid) == "round" && continue
-            push!(out, ObservedPlay(
-                State(Dict{Symbol, Any}(), Tuple{Symbol, Symbol}[], nothing, round_num),
-                Symbol(aid), Symbol(pid), now(), 1.0))
+            push!(out,
+                ObservedPlay(
+                    State(Dict{Symbol, Any}(), Tuple{Symbol, Symbol}[], nothing, round_num),
+                    Symbol(aid), Symbol(pid), now(), 1.0))
         end
     end
     out
@@ -107,10 +111,11 @@ function _assert_nash_result(r::MixedNashResult, expected::AbstractDict, world::
     focal_trait_idx = findfirst(t -> t isa CoordinationDeviceTrait, world.traits)
     if focal_want !== nothing && focal_trait_idx !== nothing
         t = world.traits[focal_trait_idx]
-        focal_matches = filter(ne -> any(aid -> startswith(string(aid),
-                                                            string(t.focal_action)),
-                                          (ne[1], ne[2])),
-                                r.pure_nash)
+        focal_matches = filter(
+            ne -> any(aid -> startswith(string(aid),
+                    string(t.focal_action)),
+                (ne[1], ne[2])),
+            r.pure_nash)
         @test !isempty(focal_matches)
     end
 end
@@ -119,7 +124,7 @@ function _assert_cooperation_sustained(r::RepeatedGameResult, expected::Abstract
     sustained = get(expected, "cooperation_sustained", nothing)
     sustained === true || return
     coop = count(round -> all(aid -> occursin("cooperate", string(aid)), values(round)),
-                 r.trajectory)
+        r.trajectory)
     @test coop / length(r.trajectory) >= 0.8
 end
 
@@ -162,7 +167,7 @@ function _run_antifragile_case(world::StrategicWorld, expected::AbstractDict)
     hedges = parse_jgdl_hedges(hedges_raw)
     obs = ObservedPlay(
         State(Dict{Symbol, Any}(:prior_rounds_cooperative => 3),
-              Tuple{Symbol, Symbol}[], nothing, 4),
+            Tuple{Symbol, Symbol}[], nothing, 4),
         :defect_2, :p2, now(), 1.0)
     activations = evaluate_hedges(hedges, obs, obs.context)
     if get(expected, "hedge_activated", false) === true
@@ -175,7 +180,7 @@ function _run_antifragile_case(world::StrategicWorld, expected::AbstractDict)
 end
 
 function _run_compliance_case(id::String, world::StrategicWorld,
-                              expected::AbstractDict, doc::AbstractDict)
+        expected::AbstractDict, doc::AbstractDict)
     solver = get(expected, "solver", "")
 
     # Full chain = world provenance (from JGDL authoring) + solver provenance.
@@ -217,7 +222,7 @@ function _run_compliance_case(id::String, world::StrategicWorld,
     elseif solver == "RepeatedGameSolver"
         r = simulate(world,
             Dict{Symbol, PlayerStrategy}(pid => TitForTat(_opponent_of(pid, world))
-                                          for pid in _player_ids(world));
+            for pid in _player_ids(world));
             horizon = 20,
             discount_factor = Float64(get(expected, "discount_factor", 0.9)))
         _assert_cooperation_sustained(r, expected)
@@ -259,7 +264,8 @@ function _run_compliance_case(id::String, world::StrategicWorld,
         hypotheses = detect_latent_confounder(world, obs; threshold = 0.8)
         if get(expected, "confounder_detected", false) === true
             @test !isempty(hypotheses)
-            want_pair = Set(Symbol(p) for p in get(expected, "correlated_players", String[]))
+            want_pair = Set(Symbol(p)
+            for p in get(expected, "correlated_players", String[]))
             if !isempty(want_pair)
                 @test any(h -> Set((h.players[1], h.players[2])) == want_pair, hypotheses)
             end
@@ -271,7 +277,7 @@ function _run_compliance_case(id::String, world::StrategicWorld,
 
     elseif solver == "ProvenanceIntegrity"
         solvers_to_probe = get(expected, "solvers_to_probe",
-                               ["BackwardInduction", "IteratedDominance", "NashEquilibrium"])
+            ["BackwardInduction", "IteratedDominance", "NashEquilibrium"])
         for s in solvers_to_probe
             chain = _provenance_chain_of(world, s)
             @test !isempty(chain)
@@ -286,9 +292,11 @@ function _run_compliance_case(id::String, world::StrategicWorld,
 end
 
 function _provenance_chain_of(world::StrategicWorld, solver_name::String)
-    solver_name == "BackwardInduction" && return solve(world, BackwardInduction()).provenance_chain
-    solver_name == "IteratedDominance" && return solve(world, IteratedDominance()).provenance_chain
-    solver_name == "NashEquilibrium"   && return solve(world, NashEquilibrium()).provenance
+    solver_name == "BackwardInduction" &&
+        return solve(world, BackwardInduction()).provenance_chain
+    solver_name == "IteratedDominance" &&
+        return solve(world, IteratedDominance()).provenance_chain
+    solver_name == "NashEquilibrium" && return solve(world, NashEquilibrium()).provenance
     ProvenanceNode[]
 end
 
@@ -307,7 +315,7 @@ end
             doc = JSON.parsefile(test_file)
             errors = validate_jgdl(doc["jgdl"])
             if !isempty(errors)
-                @error "Schema validation failed" case=case["id"] errors=map(e -> e.message, errors)
+                @error "Schema validation failed" case=case["id"] errors=map(e->e.message, errors)
             end
             @test isempty(errors)
             isempty(errors) || continue

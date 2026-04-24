@@ -64,20 +64,23 @@ function choose_action(strat::TitForTat, state::State, available::Vector{Action}
 end
 
 function choose_action(strat::GrimTrigger, state::State, available::Vector{Action})::Action
-    triggered = strat.triggered || any(h -> h[1] == strat.opponent_id && h[2] == :defect, state.history)
+    triggered = strat.triggered ||
+                any(h -> h[1] == strat.opponent_id && h[2] == :defect, state.history)
     triggered ? _find(available, :defect) : _find(available, :cooperate)
 end
 
 function choose_action(strat::Pavlov, state::State, available::Vector{Action})::Action
     # Win-stay, lose-shift: repeat last action if payoff was good (>= threshold), else switch
     strat.last_own_action === nothing && return _find(available, :cooperate)
-    strat.last_payoff >= 2.0 ? _find(available, strat.last_own_action) : _toggle(available, strat.last_own_action)
+    strat.last_payoff >= 2.0 ? _find(available, strat.last_own_action) :
+    _toggle(available, strat.last_own_action)
 end
 
 function choose_action(strat::GenerousTFT, state::State, available::Vector{Action})::Action
     opp_last = _last_action(state, strat.opponent_id)
     opp_last === nothing && return _find(available, :cooperate)
-    opp_last == :defect && rand() < strat.forgive_probability && return _find(available, :cooperate)
+    opp_last == :defect && rand() < strat.forgive_probability &&
+        return _find(available, :cooperate)
     _find(available, opp_last)
 end
 

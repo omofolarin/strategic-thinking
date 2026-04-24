@@ -1,0 +1,5 @@
+style = "sciml"
+
+# Pluto notebooks have line-oriented cell structure that generic formatters
+# can corrupt. Skip them.
+ignore = ["notebooks"]

@@ -32,7 +32,7 @@ const TALES = Dict{Symbol, Tale}(
         "When a rival's previous success alters your anticipation of their next move.",
         ["anticipation", "sequential_reasoning"],
         ["Chapter 1", "Chapter 2"],
-        "tales/hot_hand.json",
+        "tales/hot_hand.json"
     ),
     :elevator_dilemma => Tale(
         :elevator_dilemma,
@@ -40,7 +40,7 @@ const TALES = Dict{Symbol, Tale}(
         "Coordination without communication via salient focal points.",
         ["coordination", "focal_points"],
         ["Chapter 1", "Chapter 9"],
-        "tales/elevator_dilemma.json",
+        "tales/elevator_dilemma.json"
     ),
     :chicken => Tale(
         :chicken,
@@ -48,7 +48,7 @@ const TALES = Dict{Symbol, Tale}(
         "Two drivers on a collision course; swerving loses face but crashing is worse.",
         ["brinkmanship", "commitment", "mixed_strategy"],
         ["Chapter 1", "Chapter 5", "Chapter 8"],
-        "tales/chicken.json",
+        "tales/chicken.json"
     ),
     :dollar_auction => Tale(
         :dollar_auction,
@@ -56,7 +56,7 @@ const TALES = Dict{Symbol, Tale}(
         "Escalating commitment under sunk-cost pressure.",
         ["escalation", "commitment"],
         ["Chapter 1", "Chapter 6"],
-        "tales/dollar_auction.json",
+        "tales/dollar_auction.json"
     ),
     :concert_problem => Tale(
         :concert_problem,
@@ -64,7 +64,7 @@ const TALES = Dict{Symbol, Tale}(
         "When to buy tickets given beliefs about others' demand.",
         ["bayesian_reasoning", "timing"],
         ["Chapter 1", "Chapter 13"],
-        "tales/concert_problem.json",
+        "tales/concert_problem.json"
     ),
     # Remaining five tales — Phase 2 JGDL fixtures.
     :price_war => Tale(
@@ -73,7 +73,7 @@ const TALES = Dict{Symbol, Tale}(
         "Two firms cut prices to capture market share, ending in mutual losses. Illustrates the prisoner's dilemma in a repeated market context.",
         ["repeated_game", "commitment", "escalation"],
         ["Chapter 1", "Chapter 4", "Chapter 6"],
-        "tales/price_war.json",
+        "tales/price_war.json"
     ),
     :arms_race => Tale(
         :arms_race,
@@ -81,7 +81,7 @@ const TALES = Dict{Symbol, Tale}(
         "Two nations each prefer to arm if the other arms, and to disarm if the other disarms — but mutual arming is the dominant equilibrium.",
         ["dominance", "coordination", "commitment"],
         ["Chapter 1", "Chapter 3", "Chapter 5"],
-        "tales/arms_race.json",
+        "tales/arms_race.json"
     ),
     :salary_negotiation => Tale(
         :salary_negotiation,
@@ -89,7 +89,7 @@ const TALES = Dict{Symbol, Tale}(
         "A worker and firm bargain over wages. Outside options and commitment determine the split.",
         ["bargaining", "commitment", "outside_option"],
         ["Chapter 1", "Chapter 11"],
-        "tales/salary_negotiation.json",
+        "tales/salary_negotiation.json"
     ),
     :tournament_race => Tale(
         :tournament_race,
@@ -97,7 +97,7 @@ const TALES = Dict{Symbol, Tale}(
         "Contestants exert effort for a winner-take-all prize. Relative performance, not absolute, determines reward.",
         ["tournament", "relative_payoff", "effort"],
         ["Chapter 1", "Chapter 12"],
-        "tales/tournament_race.json",
+        "tales/tournament_race.json"
     ),
     :sealed_bid => Tale(
         :sealed_bid,
@@ -105,8 +105,8 @@ const TALES = Dict{Symbol, Tale}(
         "Bidders submit private bids for an object. Optimal strategy depends on beliefs about rivals' valuations.",
         ["bayesian_reasoning", "private_information", "auction"],
         ["Chapter 1", "Chapter 13"],
-        "tales/sealed_bid.json",
-    ),
+        "tales/sealed_bid.json"
+    )
 )
 
 """
@@ -125,4 +125,6 @@ end
 Return all Tales tagged with a concept. Useful for pedagogical navigation
 and for mapping inverse-inference hypotheses back to canonical exemplars.
 """
-tales_covering(concept::AbstractString) = [t for t in values(TALES) if concept in t.concepts]
+function tales_covering(concept::AbstractString)
+    [t for t in values(TALES) if concept in t.concepts]
+end

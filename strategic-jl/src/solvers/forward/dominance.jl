@@ -17,12 +17,12 @@ Every elimination step appends a ProvenanceNode citing Chapter 3 and the
 specific dominance relation used.
 """
 function dominates(
-    world::StrategicWorld,
-    player::Player,
-    a::Symbol,
-    b::Symbol,
-    opponents::Vector;
-    strict::Bool = true
+        world::StrategicWorld,
+        player::Player,
+        a::Symbol,
+        b::Symbol,
+        opponents::Vector;
+        strict::Bool = true
 )::Bool
     matrix = get(get(world.metadata, "payoffs", Dict()), "matrix", Dict())
     isempty(matrix) && return false
@@ -31,10 +31,8 @@ function dominates(
     # join order from the action list so keys match regardless of which
     # player we're checking.
     declared_order = unique(act.player_id for act in actions)
-    opp_action_sets = [
-        [act for act in actions if act.player_id == opp]
-        for opp in opponents
-    ]
+    opp_action_sets = [[act for act in actions if act.player_id == opp]
+                       for opp in opponents]
     isempty(opp_action_sets) && return false
     opp_combos = _cartesian(opp_action_sets)
     payoff_a = Float64[]
@@ -58,7 +56,7 @@ function dominates(
 end
 
 function _profile_key(declared_order::Vector{Symbol}, self_id::Symbol,
-                      self_action::Symbol, opp_action_map::AbstractDict)::String
+        self_action::Symbol, opp_action_map::AbstractDict)::String
     parts = String[]
     for pid in declared_order
         if pid == self_id
@@ -84,7 +82,7 @@ function _lookup_payoff(matrix::AbstractDict, key::String, player_id::Symbol)
     inner = haskey(matrix, key) ? matrix[key] : nothing
     if inner === nothing
         for (k, v) in matrix
-            if endswith(k, ".*") && startswith(key, k[1:end-1])
+            if endswith(k, ".*") && startswith(key, k[1:(end - 1)])
                 inner = v
                 break
             end
@@ -111,7 +109,8 @@ struct IteratedDominanceResult
     provenance_chain::Vector{ProvenanceNode}
 
     function IteratedDominanceResult(sets, elims, chain)
-        isempty(chain) && error("IteratedDominanceResult requires non-empty provenance_chain")
+        isempty(chain) &&
+            error("IteratedDominanceResult requires non-empty provenance_chain")
         new(sets, elims, chain)
     end
 end
@@ -119,7 +118,8 @@ end
 function solve(world::StrategicWorld, method::IteratedDominance)::IteratedDominanceResult
     actions = get(world.metadata, "actions", Action[])
     players = unique(a.player_id for a in actions)
-    surviving = Dict(pid => [a.id for a in actions if a.player_id == pid] for pid in players)
+    surviving = Dict(pid => [a.id for a in actions if a.player_id == pid]
+    for pid in players)
     eliminated = DominanceRelation[]
     provenance = ProvenanceNode[]
     parent = isempty(world.provenance) ? "" :
@@ -139,7 +139,7 @@ function solve(world::StrategicWorld, method::IteratedDominance)::IteratedDomina
                     a == b && continue
                     a ∈ to_remove && continue
                     if _dominates_in_surviving(world, player, a, b, opponents, surviving;
-                                               strict = !method.allow_weak)
+                        strict = !method.allow_weak)
                         push!(to_remove, b)
                         rel = DominanceRelation(pid, a, b, !method.allow_weak)
                         push!(eliminated, rel)
@@ -160,23 +160,27 @@ function solve(world::StrategicWorld, method::IteratedDominance)::IteratedDomina
     end
 
     sets = [RationalizableSet(pid, surviving[pid],
-                              [(e.dominated, e) for e in eliminated if e.player_id == pid])
+                [(e.dominated, e) for e in eliminated if e.player_id == pid])
             for pid in players]
 
     if isempty(provenance)
-        push!(provenance, ProvenanceNode(
-            "iterated_dominance_fixpoint", "Chapter 3",
-            "No actions eliminated; every declared action is rationalizable.";
-            parent_id = parent
-        ))
+        push!(provenance,
+            ProvenanceNode(
+                "iterated_dominance_fixpoint", "Chapter 3",
+                "No actions eliminated; every declared action is rationalizable.";
+                parent_id = parent
+            ))
     else
-        summary = join(["$(pid) → {$(join(string.(surviving[pid]), ", "))}" for pid in players], "; ")
-        push!(provenance, ProvenanceNode(
-            "iterated_dominance_complete", "Chapter 3",
-            "Rationalizable sets after $(round) round(s): $summary";
-            parent_id = parent,
-            theoretical_origin = "Bernheim, Rationalizable Strategic Behavior (1984); Pearce, Rationalizable Strategic Behavior and the Problem of Perfection (1984)"
-        ))
+        summary = join(
+            ["$(pid) → {$(join(string.(surviving[pid]), ", "))}"
+             for pid in players], "; ")
+        push!(provenance,
+            ProvenanceNode(
+                "iterated_dominance_complete", "Chapter 3",
+                "Rationalizable sets after $(round) round(s): $summary";
+                parent_id = parent,
+                theoretical_origin = "Bernheim, Rationalizable Strategic Behavior (1984); Pearce, Rationalizable Strategic Behavior and the Problem of Perfection (1984)"
+            ))
     end
 
     IteratedDominanceResult(sets, eliminated, provenance)
@@ -186,22 +190,21 @@ end
 # Required for *iterated* elimination: a later round only considers strategies
 # opponents still have available.
 function _dominates_in_surviving(
-    world::StrategicWorld,
-    player::Player,
-    a::Symbol,
-    b::Symbol,
-    opponents::Vector,
-    surviving::Dict;
-    strict::Bool = true
+        world::StrategicWorld,
+        player::Player,
+        a::Symbol,
+        b::Symbol,
+        opponents::Vector,
+        surviving::Dict;
+        strict::Bool = true
 )::Bool
     matrix = get(get(world.metadata, "payoffs", Dict()), "matrix", Dict())
     isempty(matrix) && return false
     actions = get(world.metadata, "actions", Action[])
     declared_order = unique(act.player_id for act in actions)
-    opp_action_sets = [
-        [Action(aid, string(aid), opp) for aid in get(surviving, opp, Symbol[])]
-        for opp in opponents
-    ]
+    opp_action_sets = [[Action(aid, string(aid), opp)
+                        for aid in get(surviving, opp, Symbol[])]
+                       for opp in opponents]
     isempty(opp_action_sets) && return false
     opp_combos = _cartesian(opp_action_sets)
     payoff_a = Float64[]

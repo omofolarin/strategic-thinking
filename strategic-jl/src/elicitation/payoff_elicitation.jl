@@ -33,9 +33,9 @@ struct ElicitedOutcomePayoff
 end
 
 function ElicitedOutcomePayoff(player_id::Symbol, outcome_key::String,
-                                layers::Vector{PayoffLayerEstimate})
+        layers::Vector{PayoffLayerEstimate})
     total = sum(l.point_estimate for l in layers; init = 0.0)
-    conf  = isempty(layers) ? 0.0 : sum(l.confidence for l in layers) / length(layers)
+    conf = isempty(layers) ? 0.0 : sum(l.confidence for l in layers) / length(layers)
     ElicitedOutcomePayoff(player_id, outcome_key, layers, total, conf)
 end
 
@@ -72,9 +72,10 @@ end
 Overall confidence of the elicitation. Values below 0.5 indicate the world should be
 treated as a weak prior and corrected aggressively by the inverse solver.
 """
-mean_confidence(em::ElicitedPayoffMatrix) =
+function mean_confidence(em::ElicitedPayoffMatrix)
     isempty(em.entries) ? 0.0 :
     sum(e.mean_confidence for e in em.entries) / length(em.entries)
+end
 
 """
     build_world_from_elicitation(em, players, actions, structure) -> StrategicWorld
@@ -83,20 +84,20 @@ Construct a StrategicWorld from an ElicitedPayoffMatrix. The aggregated payoffs 
 metadata for the solver; the elicitation provenance is prepended to the world's chain.
 """
 function build_world_from_elicitation(
-    em::ElicitedPayoffMatrix,
-    players::Vector,
-    actions::Vector{Action},
-    structure::Dict = Dict("type" => "simultaneous")
+        em::ElicitedPayoffMatrix,
+        players::Vector,
+        actions::Vector{Action},
+        structure::Dict = Dict("type" => "simultaneous")
 )::StrategicWorld
     matrix = to_payoff_matrix(em)
     metadata = Dict{String, Any}(
-        "name"        => "Elicited: $(em.description[1:min(60,end)])",
+        "name" => "Elicited: $(em.description[1:min(60,end)])",
         "description" => em.description,
-        "actions"     => actions,
-        "move_order"  => get(structure, "order", Symbol[]),
-        "payoffs"     => Dict("type" => "terminal_matrix", "matrix" => matrix),
-        "structure"   => structure,
-        "elicitation_confidence" => mean_confidence(em),
+        "actions" => actions,
+        "move_order" => get(structure, "order", Symbol[]),
+        "payoffs" => Dict("type" => "terminal_matrix", "matrix" => matrix),
+        "structure" => structure,
+        "elicitation_confidence" => mean_confidence(em)
     )
     StrategicWorld(
         "sha256:" * "0"^64,   # placeholder; world_id() computes the real hash
@@ -114,12 +115,12 @@ end
 Convenience constructor. The LLM (or a human) calls this once per layer per outcome.
 """
 function elicit_layer(
-    layer::Symbol,
-    outcome_key::String,
-    player_id::Symbol,
-    estimate::Float64,
-    confidence::Float64,
-    reasoning::String
+        layer::Symbol,
+        outcome_key::String,
+        player_id::Symbol,
+        estimate::Float64,
+        confidence::Float64,
+        reasoning::String
 )::PayoffLayerEstimate
     layer ∈ PAYOFF_LAYERS || error("Unknown layer :$layer. Must be one of $PAYOFF_LAYERS")
     PayoffLayerEstimate(

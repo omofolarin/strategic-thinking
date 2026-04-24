@@ -14,15 +14,18 @@ struct HypothesisWorld
     provenance::Vector{ProvenanceNode}
 end
 
-HypothesisWorld(world::StrategicWorld, prior::Float64) =
+function HypothesisWorld(world::StrategicWorld, prior::Float64)
     HypothesisWorld(string(uuid4()), world, prior, prior, ProvenanceNode[])
+end
 
 struct PosteriorWorldDistribution
     hypotheses::Vector{HypothesisWorld}
 end
 
 # Ranked accessor — highest posterior first
-ranked(d::PosteriorWorldDistribution) = sort(d.hypotheses; by = h -> h.posterior, rev = true)
+function ranked(d::PosteriorWorldDistribution)
+    sort(d.hypotheses; by = h -> h.posterior, rev = true)
+end
 
 """
     infer_from_observations(observations, hypotheses) -> PosteriorWorldDistribution
@@ -37,9 +40,9 @@ Returns a ranked PosteriorWorldDistribution. Every hypothesis carries provenance
 explaining why its posterior moved.
 """
 function infer_from_observations(
-    observations::Vector{ObservedPlay},
-    hypotheses::Vector{<:StrategicWorld};
-    lambda::Float64 = 1.0   # Quantal response rationality parameter
+        observations::Vector{ObservedPlay},
+        hypotheses::Vector{<:StrategicWorld};
+        lambda::Float64 = 1.0   # Quantal response rationality parameter
 )::PosteriorWorldDistribution
     n = length(hypotheses)
     n == 0 && return PosteriorWorldDistribution(HypothesisWorld[])
@@ -60,9 +63,11 @@ function infer_from_observations(
                 "bayesian_update", "Chapter 7",
                 "Observed $(obs.player_id) played $(obs.action_taken); " *
                 "posterior $(round(h.posterior; digits=4)) → $(round(new_post; digits=4))";
-                parent_id = isempty(h.provenance) ? "" : something(h.provenance[end].id, "")
+                parent_id = isempty(h.provenance) ? "" :
+                            something(h.provenance[end].id, "")
             )
-            hw[i] = HypothesisWorld(h.id, h.world, h.prior, new_post, vcat(h.provenance, [node]))
+            hw[i] = HypothesisWorld(
+                h.id, h.world, h.prior, new_post, vcat(h.provenance, [node]))
         end
     end
 

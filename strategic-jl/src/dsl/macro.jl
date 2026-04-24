@@ -36,18 +36,18 @@
 Parse a DSL description into a StrategicWorld. See `src/dsl/macro.jl` for full grammar.
 """
 function strategic(text::AbstractString)::StrategicWorld
-    players      = Pair{Symbol, Vector{Symbol}}[]
+    players = Pair{Symbol, Vector{Symbol}}[]
     player_params = Dict{Symbol, Dict{Symbol, Float64}}()
-    order        = Symbol[]
-    payoffs      = Dict{String, Dict{Symbol, Float64}}()
-    traits       = GameTrait[]
-    prov_notes   = String[]
-    in_payoff    = false
-    world_name   = ""
+    order = Symbol[]
+    payoffs = Dict{String, Dict{Symbol, Float64}}()
+    traits = GameTrait[]
+    prov_notes = String[]
+    in_payoff = false
+    world_name = ""
     chapter_refs = String[]
-    structure_type   = "simultaneous"
-    discount_factor  = nothing
-    repetitions      = nothing
+    structure_type = "simultaneous"
+    discount_factor = nothing
+    repetitions = nothing
 
     for (lineno, raw) in enumerate(split(text, "\n"))
         line = strip(raw)
@@ -81,7 +81,7 @@ function strategic(text::AbstractString)::StrategicWorld
         m = match(r"^(\w+)\s+rationality:\s*([\d.]+)$", line)
         if m !== nothing
             pid = Symbol(m[1])
-            get!(player_params, pid, Dict{Symbol,Float64}())[:rationality_factor] = parse(Float64, m[2])
+            get!(player_params, pid, Dict{Symbol, Float64}())[:rationality_factor] = parse(Float64, m[2])
             continue
         end
 
@@ -89,7 +89,7 @@ function strategic(text::AbstractString)::StrategicWorld
         m = match(r"^(\w+)\s+risk_aversion:\s*([\d.]+)$", line)
         if m !== nothing
             pid = Symbol(m[1])
-            get!(player_params, pid, Dict{Symbol,Float64}())[:risk_aversion] = parse(Float64, m[2])
+            get!(player_params, pid, Dict{Symbol, Float64}())[:risk_aversion] = parse(Float64, m[2])
             continue
         end
 
@@ -97,7 +97,7 @@ function strategic(text::AbstractString)::StrategicWorld
         m = match(r"^(\w+)\s+discount:\s*([\d.]+)$", line)
         if m !== nothing
             pid = Symbol(m[1])
-            get!(player_params, pid, Dict{Symbol,Float64}())[:discount_rate] = parse(Float64, m[2])
+            get!(player_params, pid, Dict{Symbol, Float64}())[:discount_rate] = parse(Float64, m[2])
             continue
         end
 
@@ -114,8 +114,8 @@ function strategic(text::AbstractString)::StrategicWorld
         # repeated, 10, discount 0.8
         m = match(r"^repeated,\s*(infinite|\d+),\s*discount\s+([\d.]+)$", line)
         if m !== nothing
-            structure_type  = "repeated"
-            repetitions     = m[1] == "infinite" ? "infinite" : parse(Int, m[1])
+            structure_type = "repeated"
+            repetitions = m[1] == "infinite" ? "infinite" : parse(Int, m[1])
             discount_factor = parse(Float64, m[2])
             continue
         end
@@ -132,9 +132,9 @@ function strategic(text::AbstractString)::StrategicWorld
             if m !== nothing
                 acts = [Symbol(strip(a)) for a in split(m[1], ",")]
                 vals = [parse(Float64, strip(v)) for v in split(m[2], ",")]
-                key  = join(string.(acts), ".")
+                key = join(string.(acts), ".")
                 payoffs[key] = Dict(players[i].first => vals[i]
-                                    for i in 1:min(length(players), length(vals)))
+                for i in 1:min(length(players), length(vals)))
                 continue
             end
             in_payoff = false
@@ -143,7 +143,8 @@ function strategic(text::AbstractString)::StrategicWorld
         # Alice commits to cooperate
         m = match(r"^(\w+)\s+commits\s+to\s+(\w+)$", line)
         if m !== nothing
-            pid = Symbol(m[1]); aid = Symbol(m[2])
+            pid = Symbol(m[1]);
+            aid = Symbol(m[2])
             push!(traits, CommitmentTrait(pid, aid, 100.0))
             push!(prov_notes, "$(m[1]) commits to $(m[2]) (Chapter 5)")
             continue
@@ -184,10 +185,10 @@ function strategic(text::AbstractString)::StrategicWorld
         m = match(r"^(\w+)\s+carries\s+([\d.]+)%\s+catastrophe:\s+\(([^)]+)\)$", line)
         if m !== nothing
             risky = Symbol(m[1])
-            prob  = parse(Float64, m[2]) / 100.0
-            vals  = [parse(Float64, strip(v)) for v in split(m[3], ",")]
+            prob = parse(Float64, m[2]) / 100.0
+            vals = [parse(Float64, strip(v)) for v in split(m[3], ",")]
             cat_payoff = Dict(players[i].first => vals[i]
-                              for i in 1:min(length(players), length(vals)))
+            for i in 1:min(length(players), length(vals)))
             push!(traits, BrinkmanshipTrait(risky, prob, cat_payoff))
             push!(prov_notes, "$(m[1]) carries $(m[2])% catastrophe risk (Chapter 8)")
             continue
@@ -214,7 +215,8 @@ function strategic(text::AbstractString)::StrategicWorld
     # Unique action IDs within each player (same name across players is fine)
     for (pid, acts) in players
         dupes = [id for id in acts if count(==(id), acts) > 1] |> unique
-        isempty(dupes) || error("strategic DSL: player $pid has duplicate action ids: $(join(dupes, ", "))")
+        isempty(dupes) ||
+            error("strategic DSL: player $pid has duplicate action ids: $(join(dupes, ", "))")
     end
 
     all_action_ids = Set(aid for (_, acts) in players for aid in acts)
@@ -286,37 +288,38 @@ function strategic(text::AbstractString)::StrategicWorld
     structure_dict = Dict{String, Any}("type" => structure_type)
     structure_type == "sequential" && (structure_dict["order"] = string.(order))
     if structure_type == "repeated"
-        structure_dict["repetitions"]    = repetitions
+        structure_dict["repetitions"] = repetitions
         structure_dict["discount_factor"] = discount_factor
     end
 
     # Provenance
     rationale = (isempty(world_name) ? "World" : world_name) *
-        " constructed via strategic() DSL." *
-        (isempty(prov_notes) ? "" : " " * join(prov_notes, "; "))
+                " constructed via strategic() DSL." *
+                (isempty(prov_notes) ? "" : " " * join(prov_notes, "; "))
     prov = [ProvenanceNode("initial_construction", "Chapter 1", rationale; parent_id = "")]
     for t in traits
-        chapter = t isa CommitmentTrait   ? "Chapter 5" :
-                  t isa BurnedBridgeTrait  ? "Chapter 6" :
+        chapter = t isa CommitmentTrait ? "Chapter 5" :
+                  t isa BurnedBridgeTrait ? "Chapter 6" :
                   t isa CredibleThreatTrait ? "Chapter 6" :
-                  t isa MixedStrategyTrait  ? "Chapter 7" :
-                  t isa BrinkmanshipTrait   ? "Chapter 8" : "Chapter 1"
-        push!(prov, ProvenanceNode(
-            "applied_trait", chapter,
-            "Trait $(nameof(typeof(t))) applied via strategic() DSL";
-            trait_type = string(nameof(typeof(t))),
-            parent_id = ""
-        ))
+                  t isa MixedStrategyTrait ? "Chapter 7" :
+                  t isa BrinkmanshipTrait ? "Chapter 8" : "Chapter 1"
+        push!(prov,
+            ProvenanceNode(
+                "applied_trait", chapter,
+                "Trait $(nameof(typeof(t))) applied via strategic() DSL";
+                trait_type = string(nameof(typeof(t))),
+                parent_id = ""
+            ))
     end
 
     metadata = Dict{String, Any}(
-        "name"             => world_name,
+        "name" => world_name,
         "chapter_references" => isempty(chapter_refs) ? ["Chapter 1"] : chapter_refs,
-        "actions"          => actions,
-        "move_order"       => order,
-        "payoffs"          => Dict("type" => "terminal_matrix", "matrix" => payoffs),
-        "structure"        => structure_dict,
-        "player_params"    => player_params,
+        "actions" => actions,
+        "move_order" => order,
+        "payoffs" => Dict("type" => "terminal_matrix", "matrix" => payoffs),
+        "structure" => structure_dict,
+        "player_params" => player_params
     )
 
     StrategicWorld("sha256:" * "0"^64, _NullGame(), traits, prov, metadata)

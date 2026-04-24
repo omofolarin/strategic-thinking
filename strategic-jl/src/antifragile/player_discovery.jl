@@ -17,11 +17,11 @@ citing the observations that birthed it.
 k is reserved for future Dirichlet Process clustering (Phase 3+).
 """
 function discover_players(
-    world::StrategicWorld,
-    observations::Vector{ObservedPlay};
-    k::Int = 1
+        world::StrategicWorld,
+        observations::Vector{ObservedPlay};
+        k::Int = 1
 )::Vector{DiscoveredPlayer}
-    actions  = get(world.metadata, "actions", Action[])
+    actions = get(world.metadata, "actions", Action[])
     known_ids = Set(a.player_id for a in actions)
 
     unknown = Dict{Symbol, Vector{ObservedPlay}}()
@@ -31,14 +31,14 @@ function discover_players(
     end
 
     [DiscoveredPlayer(
-        pid,
-        obs_list,
-        [ProvenanceNode(
-            "discovered_player", "Chapter 1",
-            "Player :$pid not in known player set. " *
-            "Inferred from $(length(obs_list)) observation(s): " *
-            join([string(o.action_taken) for o in obs_list], ", ");
-            parent_id = world.id
-        )]
-    ) for (pid, obs_list) in unknown]
+         pid,
+         obs_list,
+         [ProvenanceNode(
+             "discovered_player", "Chapter 1",
+             "Player :$pid not in known player set. " *
+             "Inferred from $(length(obs_list)) observation(s): " *
+             join([string(o.action_taken) for o in obs_list], ", ");
+             parent_id = world.id
+         )]
+     ) for (pid, obs_list) in unknown]
 end

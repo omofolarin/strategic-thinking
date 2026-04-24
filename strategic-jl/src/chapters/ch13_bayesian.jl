@@ -46,16 +46,17 @@ function solve(world::StrategicWorld, ::BayesianNashSolver)::BayesianNashResult
     formula = n_bidders == 2 ? "bid = value / 2" :
               "bid = value × $(n_bidders-1)/$(n_bidders)"
 
-    push!(prov, ProvenanceNode(
-        "bayesian_nash_equilibrium", "Chapter 13",
-        "First-price auction BNE with $n_bidders symmetric bidders, Uniform[0,1] values. " *
-        "BNE strategy: $formula. " *
-        "Derivation: bidder maximises (value - bid) × P(win). " *
-        "P(win) = (bid/V)^(n-1) for uniform prior. " *
-        "FOC gives bid = value × (n-1)/n.";
-        parent_id = "",
-        theoretical_origin = "Vickrey, Counterspeculation, Auctions, and Competitive Sealed Tenders (1961)"
-    ))
+    push!(prov,
+        ProvenanceNode(
+            "bayesian_nash_equilibrium", "Chapter 13",
+            "First-price auction BNE with $n_bidders symmetric bidders, Uniform[0,1] values. " *
+            "BNE strategy: $formula. " *
+            "Derivation: bidder maximises (value - bid) × P(win). " *
+            "P(win) = (bid/V)^(n-1) for uniform prior. " *
+            "FOC gives bid = value × (n-1)/n.";
+            parent_id = "",
+            theoretical_origin = "Vickrey, Counterspeculation, Auctions, and Competitive Sealed Tenders (1961)"
+        ))
 
     BayesianNashResult(
         "Bid $(round(bid_factor; digits=4)) × private value",

@@ -14,7 +14,7 @@ function payoff(g::WithTrait{<:AbstractGame, TournamentIncentiveTrait}, state::S
     if length(players) == 2
         p1, p2 = players
         base = Dict(p1 => base[p1] + w * (base[p1] - base[p2]),
-                    p2 => base[p2] + w * (base[p2] - base[p1]))
+            p2 => base[p2] + w * (base[p2] - base[p1]))
     end
     base
 end

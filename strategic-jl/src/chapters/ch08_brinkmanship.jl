@@ -22,5 +22,5 @@ function payoff(g::WithTrait{<:AbstractGame, BrinkmanshipTrait}, state::State)
     triggered || return base
     p = t.catastrophe_probability
     Dict(k => (1 - p) * get(base, k, 0.0) + p * get(t.catastrophic_payoff, k, 0.0)
-         for k in union(keys(base), keys(t.catastrophic_payoff)))
+    for k in union(keys(base), keys(t.catastrophic_payoff)))
 end

@@ -10,7 +10,8 @@ struct ValidationError
     message::String
 end
 
-const _SCHEMA_PATH = joinpath(@__DIR__, "..", "..", "..", "jgdl", "schema", "v1.1.0.schema.json")
+const _SCHEMA_PATH = joinpath(
+    @__DIR__, "..", "..", "..", "jgdl", "schema", "v1.1.0.schema.json")
 const _JGDL_SCHEMA = Ref{Any}(nothing)
 
 function _schema()
@@ -38,10 +39,10 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
     world = get(doc, "world", nothing)
     world === nothing && return errors
 
-    actions  = get(world, "actions", [])
-    players  = get(world, "players", [])
-    traits   = get(world, "traits",  [])
-    payoffs  = get(world, "payoffs", nothing)
+    actions = get(world, "actions", [])
+    players = get(world, "players", [])
+    traits = get(world, "traits", [])
+    payoffs = get(world, "payoffs", nothing)
     structure = get(world, "structure", nothing)
 
     action_ids = [string(get(a, "id", "")) for a in actions]
@@ -59,12 +60,14 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
     # 2. Unique action IDs within each player
     for p in players
         pid = string(get(p, "id", ""))
-        p_acts = [string(get(a, "id", "")) for a in actions
+        p_acts = [string(get(a, "id", ""))
+                  for a in actions
                   if string(get(a, "player_id", "")) == pid]
         if length(p_acts) != length(Set(p_acts))
             dupes = [id for id in p_acts if count(==(id), p_acts) > 1] |> unique
-            push!(errors, ValidationError("/world/actions",
-                "Player '$pid' has duplicate action ids: $(join(dupes, ", "))"))
+            push!(errors,
+                ValidationError("/world/actions",
+                    "Player '$pid' has duplicate action ids: $(join(dupes, ", "))"))
         end
     end
 
@@ -72,8 +75,9 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
     for a in actions
         pid = string(get(a, "player_id", ""))
         pid ∉ known_player_ids &&
-            push!(errors, ValidationError("/world/actions/$(get(a,"id",""))",
-                "Action '$(get(a,"id",""))' references undeclared player '$pid'"))
+            push!(errors,
+                ValidationError("/world/actions/$(get(a,"id",""))",
+                    "Action '$(get(a,"id",""))' references undeclared player '$pid'"))
     end
 
     if payoffs !== nothing && get(payoffs, "type", "") == "terminal_matrix"
@@ -84,33 +88,40 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
             for seg in split(string(key), ".")
                 seg == "*" && continue
                 seg ∉ known_action_ids &&
-                    push!(errors, ValidationError("/world/payoffs/matrix/$key",
-                        "Payoff key segment '$seg' does not match any declared action id. " *
-                        "Known: $(join(sort(collect(known_action_ids)), ", "))"))
+                    push!(errors,
+                        ValidationError("/world/payoffs/matrix/$key",
+                            "Payoff key segment '$seg' does not match any declared action id. " *
+                            "Known: $(join(sort(collect(known_action_ids)), ", "))"))
             end
         end
 
         # 5. Payoff matrix completeness (warn only — wildcard entries count as covering)
         if !isempty(players) && !isempty(actions)
             player_action_sets = Dict(
-                string(get(p, "id", "")) =>
-                    [string(get(a, "id", "")) for a in actions
-                     if string(get(a, "player_id", "")) == string(get(p, "id", ""))]
-                for p in players
+                string(get(p,
+                    "id",
+                    "")) => [string(get(a, "id", ""))
+                             for a in actions
+                             if string(get(a, "player_id", "")) == string(get(p, "id", ""))]
+            for p in players
             )
             ordered_players = player_ids
             if length(ordered_players) == 2
                 p1_acts = get(player_action_sets, ordered_players[1], String[])
                 p2_acts = get(player_action_sets, ordered_players[2], String[])
                 for a1 in p1_acts, a2 in p2_acts
+
                     key = "$a1.$a2"
                     # Check exact match or wildcard coverage
                     covered = haskey(matrix, key) ||
-                              any(k -> endswith(string(k), ".*") &&
-                                       startswith(key, string(k)[1:end-1]), keys(matrix))
-                    covered || push!(errors, ValidationError("/world/payoffs/matrix",
-                        "Missing payoff entry for outcome '$key'. " *
-                        "Add ($a1, $a2) => (...) or use a wildcard."))
+                              any(
+                        k -> endswith(string(k), ".*") &&
+                             startswith(key, string(k)[1:(end - 1)]),
+                        keys(matrix))
+                    covered || push!(errors,
+                        ValidationError("/world/payoffs/matrix",
+                            "Missing payoff entry for outcome '$key'. " *
+                            "Add ($a1, $a2) => (...) or use a wildcard."))
                 end
             end
         end
@@ -124,15 +135,18 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
 
         pid = string(get(params, "player_id", ""))
         if !isempty(pid) && pid ∉ known_player_ids
-            push!(errors, ValidationError("/world/traits/$tid",
-                "Trait '$tid' references undeclared player '$pid'"))
+            push!(errors,
+                ValidationError("/world/traits/$tid",
+                    "Trait '$tid' references undeclared player '$pid'"))
         end
 
-        for key in ("committed_action", "forbidden_action", "retaliation_action", "trigger_action")
+        for key in
+            ("committed_action", "forbidden_action", "retaliation_action", "trigger_action")
             aid = string(get(params, key, ""))
             if !isempty(aid) && aid ∉ known_action_ids
-                push!(errors, ValidationError("/world/traits/$tid",
-                    "Trait '$tid' parameter '$key' references undeclared action '$aid'"))
+                push!(errors,
+                    ValidationError("/world/traits/$tid",
+                        "Trait '$tid' parameter '$key' references undeclared action '$aid'"))
             end
         end
 
@@ -141,16 +155,19 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
             dist = get(params, "distribution", Dict())
             total = sum(values(dist); init = 0.0)
             abs(total - 1.0) > 0.01 &&
-                push!(errors, ValidationError("/world/traits/$tid/parameters/distribution",
-                    "MixedStrategy distribution sums to $(round(total; digits=4)), expected 1.0"))
+                push!(errors,
+                    ValidationError("/world/traits/$tid/parameters/distribution",
+                        "MixedStrategy distribution sums to $(round(total; digits=4)), expected 1.0"))
         end
 
         # 8. Brinkmanship probability in [0, 1]
         if trait_type == "Brinkmanship"
             p = get(params, "catastrophe_probability", nothing)
             p !== nothing && (p < 0 || p > 1) &&
-                push!(errors, ValidationError("/world/traits/$tid/parameters/catastrophe_probability",
-                    "Brinkmanship catastrophe_probability=$p must be in [0, 1]"))
+                push!(errors,
+                    ValidationError(
+                        "/world/traits/$tid/parameters/catastrophe_probability",
+                        "Brinkmanship catastrophe_probability=$p must be in [0, 1]"))
         end
     end
 
@@ -158,8 +175,9 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
     if structure !== nothing && get(structure, "type", "") == "sequential"
         for pid in get(structure, "order", [])
             string(pid) ∉ known_player_ids &&
-                push!(errors, ValidationError("/world/structure/order",
-                    "Move order references undeclared player '$(pid)'"))
+                push!(errors,
+                    ValidationError("/world/structure/order",
+                        "Move order references undeclared player '$(pid)'"))
         end
     end
 
@@ -173,11 +191,12 @@ function _validate_semantics(doc::AbstractDict)::Vector{ValidationError}
     # 11. Provenance parent_id format
     for (i, node) in enumerate(get(world, "provenance", []))
         pid = string(get(node, "parent_id", ""))
-        op  = string(get(node, "operation", ""))
+        op = string(get(node, "operation", ""))
         if op != "initial_construction" && !isempty(pid) &&
            !startswith(pid, "sha256:") && pid != ""
-            push!(errors, ValidationError("/world/provenance/$i/parent_id",
-                "parent_id '$pid' should be empty string or 'sha256:...' format"))
+            push!(errors,
+                ValidationError("/world/provenance/$i/parent_id",
+                    "parent_id '$pid' should be empty string or 'sha256:...' format"))
         end
     end
 

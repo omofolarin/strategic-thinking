@@ -35,10 +35,10 @@ If the rate exceeds `threshold` and the world contains no
 chapter on latent reasoning.
 """
 function detect_latent_confounder(
-    world::StrategicWorld,
-    observations::Vector{ObservedPlay};
-    threshold::Float64 = 0.8,
-    min_rounds::Int = 3
+        world::StrategicWorld,
+        observations::Vector{ObservedPlay};
+        threshold::Float64 = 0.8,
+        min_rounds::Int = 3
 )::Vector{LatentConfounderHypothesis}
     rounds = _observations_by_round(observations)
     length(rounds) < min_rounds && return LatentConfounderHypothesis[]
@@ -47,7 +47,8 @@ function detect_latent_confounder(
     results = LatentConfounderHypothesis[]
     # Every unordered player pair appearing in observations.
     pids = unique(o.player_id for o in observations)
-    for i in 1:length(pids), j in (i+1):length(pids)
+    for i in 1:length(pids), j in (i + 1):length(pids)
+
         pa, pb = pids[i], pids[j]
         matches = 0
         considered = 0
@@ -57,7 +58,7 @@ function detect_latent_confounder(
             (ra === nothing || rb === nothing) && continue
             considered += 1
             _action_root(obs_round[ra].action_taken) ==
-                _action_root(obs_round[rb].action_taken) &&
+            _action_root(obs_round[rb].action_taken) &&
                 (matches += 1)
         end
         considered < min_rounds && continue
@@ -66,11 +67,12 @@ function detect_latent_confounder(
 
         rationale = "Players :$pa and :$pb aligned on $(matches)/$(considered) " *
                     "rounds ($(round(rate * 100; digits=1))% match). " *
-                    (has_coord ? "CoordinationDevice trait present — confounder " *
-                                  "ranked below coordination-device explanation." :
-                                  "No coordination device in world; latent common " *
-                                  "cause is the simplest explanation for the " *
-                                  "correlation.")
+                    (has_coord ?
+                     "CoordinationDevice trait present — confounder " *
+                     "ranked below coordination-device explanation." :
+                     "No coordination device in world; latent common " *
+                     "cause is the simplest explanation for the " *
+                     "correlation.")
         prov = [ProvenanceNode(
             "flagged_latent_confounder", "Chapter 3",
             rationale;

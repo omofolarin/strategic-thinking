@@ -31,7 +31,7 @@ struct State
 end
 
 # StrategicWorld — forward declaration filled in by later includes
-mutable struct StrategicWorld{G<:AbstractGame}
+mutable struct StrategicWorld{G <: AbstractGame}
     id::String
     game::G
     traits::Vector{GameTrait}
