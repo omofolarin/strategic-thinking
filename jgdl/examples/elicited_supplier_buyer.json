@@ -1,0 +1,75 @@
+{
+  "version": "1.1.0",
+  "world": {
+    "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "metadata": {
+      "name": "Supplier-Buyer Contract (Elicited)",
+      "description": "10-year supplier relationship. Payoffs elicited via LLM from natural language description.",
+      "chapter_references": ["Chapter 4", "Chapter 11"]
+    },
+    "players": [
+      { "id": "supplier", "name": "Supplier", "type": "rational" },
+      { "id": "buyer",    "name": "Buyer",    "type": "rational" }
+    ],
+    "actions": [
+      { "id": "cooperate_s", "name": "Honour contract", "player_id": "supplier" },
+      { "id": "defect_s",    "name": "Cut corners",     "player_id": "supplier" },
+      { "id": "cooperate_b", "name": "Pay on time",     "player_id": "buyer" },
+      { "id": "defect_b",    "name": "Delay payment",   "player_id": "buyer" }
+    ],
+    "structure": { "type": "simultaneous" },
+    "payoffs": {
+      "type": "terminal_matrix",
+      "matrix": {
+        "cooperate_s.cooperate_b": { "supplier": 8.0, "buyer": 8.0 },
+        "cooperate_s.defect_b":    { "supplier": -3.5, "buyer": 5.5 },
+        "defect_s.cooperate_b":    { "supplier": 5.5, "buyer": -3.5 },
+        "defect_s.defect_b":       { "supplier": -2.5, "buyer": -2.5 }
+      }
+    },
+    "traits": [],
+    "initial_state": { "variables": {}, "history": [], "current_player": null, "round": 0 },
+    "provenance": [
+      {
+        "operation": "elicited_world",
+        "chapter_ref": "Chapter 1",
+        "rationale": "Payoffs elicited from: 'Supplier-buyer contract negotiation, 10-year relationship'. Mean confidence: 0.74.",
+        "parent_id": "",
+        "timestamp": "2026-04-24T04:20:00Z",
+        "author": "llm"
+      }
+    ],
+    "elicitation": {
+      "description": "Supplier-buyer contract negotiation, 10-year relationship",
+      "mean_confidence": 0.74,
+      "entries": [
+        {
+          "player_id": "supplier",
+          "outcome_key": "cooperate_s.cooperate_b",
+          "total": 8.0,
+          "mean_confidence": 0.74,
+          "layers": [
+            { "layer": "material",     "point_estimate": 3.0, "confidence": 0.9, "reasoning": "Direct financial gain from fulfilled contract." },
+            { "layer": "social",       "point_estimate": 2.0, "confidence": 0.7, "reasoning": "10-year relationship preserved; reputation intact." },
+            { "layer": "temporal",     "point_estimate": 1.5, "confidence": 0.8, "reasoning": "Repeated interaction; future contracts expected." },
+            { "layer": "identity",     "point_estimate": 1.0, "confidence": 0.6, "reasoning": "Consistent with professional identity as reliable supplier." },
+            { "layer": "uncertainty",  "point_estimate": 0.5, "confidence": 0.7, "reasoning": "Moderate risk aversion; certain outcome preferred." }
+          ]
+        },
+        {
+          "player_id": "buyer",
+          "outcome_key": "cooperate_s.cooperate_b",
+          "total": 8.0,
+          "mean_confidence": 0.74,
+          "layers": [
+            { "layer": "material",     "point_estimate": 3.0, "confidence": 0.9, "reasoning": "Quality goods delivered on time." },
+            { "layer": "social",       "point_estimate": 2.0, "confidence": 0.7, "reasoning": "Supplier relationship maintained; referrals possible." },
+            { "layer": "temporal",     "point_estimate": 1.5, "confidence": 0.8, "reasoning": "Continued supply chain stability." },
+            { "layer": "identity",     "point_estimate": 1.0, "confidence": 0.6, "reasoning": "Fair dealing aligns with buyer's business values." },
+            { "layer": "uncertainty",  "point_estimate": 0.5, "confidence": 0.7, "reasoning": "Predictable outcome reduces planning risk." }
+          ]
+        }
+      ]
+    }
+  }
+}

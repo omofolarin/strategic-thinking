@@ -11,7 +11,7 @@ struct ValidationError
     message::String
 end
 
-const _SCHEMA_PATH = joinpath(@__DIR__, "..", "..", "..", "jgdl", "schema", "v1.0.0.schema.json")
+const _SCHEMA_PATH = joinpath(@__DIR__, "..", "..", "..", "jgdl", "schema", "v1.1.0.schema.json")
 
 const _JGDL_SCHEMA = Ref{Any}(nothing)
 
