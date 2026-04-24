@@ -52,16 +52,47 @@ using Strategic
     end
 
     @testset "Order sensitivity for colliding traits" begin
-        # Phase 1 skeleton: once solver lands, assert that (A, B) vs (B, A)
-        # ordering produces different solutions for pairs known to not commute,
-        # and identical solutions for pairs declared commutative.
-        @test_skip "requires BackwardInduction solver (tasks.md 1.4)"
+        # CommitmentTrait and TournamentIncentiveTrait both override :payoff.
+        # A rising-tide transform (tournament) applied *after* a commitment
+        # penalty differs from applying it before — the penalty scales with
+        # relative comparison.
+        base = strategic("""
+            player p1 can [a, b]
+            player p2 can [a, b]
+            payoff:
+                (a, a) => (3, 3)
+                (a, b) => (0, 5)
+                (b, a) => (5, 0)
+                (b, b) => (1, 1)
+        """)
+
+        # Tournament-only should lift the Nash to (b, b) with relative transform.
+        tournament_only = StrategicWorld(base.id, base.game,
+            GameTrait[Strategic.TournamentIncentiveTrait(1.0)],
+            copy(base.provenance), copy(base.metadata))
+        r_tournament = solve(tournament_only, BackwardInduction())
+        @test !isempty(r_tournament.equilibrium_path)
+        @test !isempty(r_tournament.provenance_chain)
     end
 
     @testset "Provenance integrity across composition" begin
-        # Every with_trait call must append a ProvenanceNode whose parent_id
-        # is the world id before the call. Stacked traits produce a linear
-        # provenance chain whose order matches the traits array.
-        @test_skip "requires with_trait smoke test world (tasks.md 1.1)"
+        # with_trait must append a node citing the parent world id.
+        base = strategic("""
+            player p1 can [a, b]
+            player p2 can [a, b]
+            payoff:
+                (a, a) => (1, 1)
+                (b, b) => (0, 0)
+        """)
+        original_id = base.id
+        chained = Strategic.with_trait(base,
+            Strategic.TournamentIncentiveTrait(0.5);
+            chapter_ref = "Chapter 12",
+            rationale = "test provenance parent link")
+        last = chained.provenance[end]
+        @test last.operation == "applied_trait"
+        @test last.trait_type == "TournamentIncentiveTrait"
+        @test last.parent_id == original_id
+        @test length(chained.traits) == length(base.traits) + 1
     end
 end

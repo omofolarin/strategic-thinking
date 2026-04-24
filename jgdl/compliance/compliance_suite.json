@@ -128,22 +128,22 @@
     },
     {
       "id": "antifragile_new_player",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/antifragile_new_player.json",
       "chapter": "Antifragile",
       "description": "Actions not attributable to known players trigger player discovery."
     },
     {
       "id": "antifragile_latent_confounder",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/antifragile_latent_confounder.json",
       "chapter": "Antifragile",
       "description": "Correlated actions without direct causation flag a latent confounder."
     },
     {
       "id": "provenance_integrity",
-      "status": "skeleton",
-      "test_path": null,
+      "status": "authored",
+      "test_path": "tests/provenance_integrity.json",
       "chapter": "Cross-cutting",
       "description": "Every Solution returned carries a non-empty provenance chain."
     }

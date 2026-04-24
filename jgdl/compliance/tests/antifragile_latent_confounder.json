@@ -1,0 +1,68 @@
+{
+  "id": "antifragile_latent_confounder",
+  "chapter": "Antifragile",
+  "concept": "Latent Confounder — correlated actions without direct causation",
+  "description": "Across four rounds, p1 and p2 choose the same action every time. No CoordinationDevice trait links them. The antifragile layer flags a latent common cause.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Latent Confounder Detection",
+        "description": "Perfectly correlated actions across two players with no coordination trait.",
+        "chapter_references": ["Chapter 1", "Chapter 3"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "cooperate_1", "name": "Cooperate", "player_id": "p1" },
+        { "id": "defect_1",    "name": "Defect",    "player_id": "p1" },
+        { "id": "cooperate_2", "name": "Cooperate", "player_id": "p2" },
+        { "id": "defect_2",    "name": "Defect",    "player_id": "p2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "cooperate_1.cooperate_2": { "p1": 3, "p2": 3 },
+          "cooperate_1.defect_2":    { "p1": 0, "p2": 5 },
+          "defect_1.cooperate_2":    { "p1": 5, "p2": 0 },
+          "defect_1.defect_2":       { "p1": 1, "p2": 1 }
+        }
+      },
+      "traits": [],
+      "initial_state": {
+        "variables": {
+          "observations": [
+            { "round": 1, "p1": "cooperate_1", "p2": "cooperate_2" },
+            { "round": 2, "p1": "cooperate_1", "p2": "cooperate_2" },
+            { "round": 3, "p1": "defect_1",    "p2": "defect_2"    },
+            { "round": 4, "p1": "defect_1",    "p2": "defect_2"    }
+          ]
+        },
+        "history": [],
+        "current_player": null,
+        "round": 0
+      },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 3",
+          "rationale": "Antifragile case: p1 and p2 align on every round across four observations. No CoordinationDevice is declared, so a latent common cause — unobserved variable, shared environment cue, or side-channel coordination — is the ranking hypothesis under PC/tetrad reasoning.",
+          "parent_id": "",
+          "timestamp": "2026-04-24T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "LatentConfounderDetector",
+    "confounder_detected": true,
+    "correlated_players": ["p1", "p2"],
+    "minimum_alignment_rate": 0.8,
+    "rationale_must_cite": ["Chapter 3"]
+  }
+}

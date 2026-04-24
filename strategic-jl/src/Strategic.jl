@@ -30,12 +30,14 @@ include("chapters/ch13_bayesian.jl")
 include("solvers/forward/backward_induction.jl")
 include("solvers/forward/dominance.jl")
 include("solvers/forward/nash.jl")
+include("solvers/forward/repeated.jl")
 include("solvers/inverse/bayesian_inference.jl")
 include("solvers/inverse/hypothesis_narrowing.jl")
 include("solvers/inverse/structural_break.jl")
 
 include("antifragile/surprise_detector.jl")
 include("antifragile/player_discovery.jl")
+include("antifragile/latent.jl")
 include("antifragile/hedges.jl")
 include("antifragile/open_world.jl")
 
@@ -52,13 +54,22 @@ export
     # Foundation (Ch 1–4)
     Tale, TALES, tale, tales_covering,
     InformationSet, SequentialInvariants, validate_sequential, look_ahead_depth,
-    DominanceRelation, RationalizableSet, IteratedDominance, dominates,
+    DominanceRelation, RationalizableSet, IteratedDominance, IteratedDominanceResult, dominates,
     TitForTat, GrimTrigger, Pavlov, GenerousTFT, choose_action,
     # Modifier traits (Ch 5–8)
     CommitmentTrait, CredibleThreatTrait, BurnedBridgeTrait,
     MixedStrategyTrait, BrinkmanshipTrait,
+    CoordinationDeviceTrait, VotingRuleTrait,
+    BargainingProtocolTrait, TournamentIncentiveTrait, BayesianBeliefTrait,
+    solve_with_focal,
     # Solvers
-    BackwardInduction, NashEquilibrium, solve, simulate,
+    BackwardInduction, NashEquilibrium, MixedNashResult,
+    VotingSolver, VotingResult,
+    BargainingSolver, BargainingResult,
+    BayesianNashSolver, BayesianNashResult,
+    RepeatedGameSolver, RepeatedGameResult, AlwaysDefect,
+    Solution, SolverMethod, PlayerStrategy,
+    solve, simulate,
     # JGDL
     to_jgdl, from_jgdl, world_id, validate_jgdl, ValidationError,
     # Elicitation (LLM-assisted payoff construction)
@@ -76,6 +87,7 @@ export
     WorldMutationTemplate, SurpriseEvent, SurpriseDetector,
     detect_surprise, mutate_world,
     DiscoveredPlayer, discover_players,
+    LatentConfounderHypothesis, detect_latent_confounder,
     Hedge, HedgeActivation, evaluate_hedges, parse_jgdl_hedges,
     ShadowPlayer, OpenWorldGame, AntifragileSolution, solve_antifragile
 

@@ -193,6 +193,14 @@ function strategic(text::AbstractString)::StrategicWorld
             continue
         end
 
+        # relative payoff weight: 0.5
+        m = match(r"^relative\s+payoff\s+weight:\s*([\d.]+)$", line)
+        if m !== nothing
+            push!(traits, TournamentIncentiveTrait(parse(Float64, m[1])))
+            push!(prov_notes, "tournament incentive, relative weight=$(m[1]) (Chapter 12)")
+            continue
+        end
+
         error("strategic DSL line $lineno: unrecognised: $(repr(line))")
     end
 

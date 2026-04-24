@@ -11,4 +11,5 @@ using Strategic
     include("composition.jl")
     include("compliance.jl")
     include("dsl.jl")
+    include("repeated.jl")
 end

@@ -1,0 +1,60 @@
+{
+  "id": "provenance_integrity",
+  "chapter": "Cross-cutting",
+  "concept": "Provenance Integrity — every Solution carries a non-empty provenance chain",
+  "description": "Cross-cutting invariant from AGENTS.md §1.1. Every forward solver must return a Solution (or solver-specific result) whose provenance_chain is non-empty. Running BackwardInduction, IteratedDominance, and NashEquilibrium against the same world must all satisfy the contract.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Provenance Integrity Probe",
+        "description": "Canonical PD. Used to assert every solver returns non-empty provenance.",
+        "chapter_references": ["Chapter 1", "Chapter 2", "Chapter 3", "Chapter 7"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "cooperate_1", "name": "Cooperate", "player_id": "p1" },
+        { "id": "defect_1",    "name": "Defect",    "player_id": "p1" },
+        { "id": "cooperate_2", "name": "Cooperate", "player_id": "p2" },
+        { "id": "defect_2",    "name": "Defect",    "player_id": "p2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "cooperate_1.cooperate_2": { "p1": 3, "p2": 3 },
+          "cooperate_1.defect_2":    { "p1": 0, "p2": 5 },
+          "defect_1.cooperate_2":    { "p1": 5, "p2": 0 },
+          "defect_1.defect_2":       { "p1": 1, "p2": 1 }
+        }
+      },
+      "traits": [],
+      "initial_state": {
+        "variables": {},
+        "history": [],
+        "current_player": null,
+        "round": 0
+      },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 1",
+          "rationale": "Probe world for the provenance-integrity contract. Every solver applied to this world must return a non-empty provenance chain.",
+          "parent_id": "",
+          "timestamp": "2026-04-24T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "ProvenanceIntegrity",
+    "solvers_to_probe": ["BackwardInduction", "IteratedDominance", "NashEquilibrium"],
+    "every_solver_returns_non_empty_chain": true,
+    "rationale_must_cite": ["Chapter 1"]
+  }
+}

@@ -4,85 +4,139 @@
 [![Status: pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange.svg)](./roadmap.md)
 [![JGDL: v1.0.0](https://img.shields.io/badge/JGDL-v1.0.0-lightgrey.svg)](./docs/glossary.md)
 
-A composable toolkit for strategic reasoning, grounded in Dixit & Nalebuff's *Thinking Strategically* (with roots in Schelling's *Strategy of Conflict*).
+A toolkit for reasoning about situations where your best move depends on what other people will do — pricing against a competitor, negotiating a deal, deciding whether to back down in a standoff. The math that handles these situations is called **game theory**; this project is trying to be the missing tool that makes classical game theory practical to apply.
 
-**Status:** pre-alpha. Scaffolding complete; Phase 0 (JGDL as the contract) is the next deliverable. See `roadmap.md`.
+You describe a situation; it computes what rational participants should do. You feed it observations of how people actually played; it ranks hypotheses about what game they're really playing. Every conclusion carries a citation trail back to the reasoning that produced it, so a language model can explain the result without making things up — it can only quote what the engine already decided.
+
+**Status: pre-alpha.** The Julia core is working and tested (155 passing tests, 0 failing). See [Status](#status) below for the full picture.
 
 ---
 
-## What this is
+## A quick example
 
-Not a case-study catalog. Not a chat wrapper around game theory. A set of primitives users compose to sculpt strategic worlds the authors never anticipated — in both directions:
+The classic prisoner's dilemma, written in the built-in DSL:
 
-- **Forward:** rules → behavior. *"Given this game, what will rational players do?"*
-- **Inverse:** behavior → rules. *"Given what we observed, what game are they actually playing?"*
+```julia
+using Strategic
 
-Every composition step leaves a citation trail (provenance) so an LLM explanation layer can ground every claim in the chapter and rationale that produced it — no hallucination.
+world = strategic("""
+    player p1 can [cooperate, defect]
+    player p2 can [cooperate, defect]
+    payoff:
+        (cooperate, cooperate) => (3, 3)
+        (cooperate, defect)    => (0, 5)
+        (defect,    cooperate) => (5, 0)
+        (defect,    defect)    => (1, 1)
+""")
 
-## Guiding principles
+r = solve(world, BackwardInduction())
+# r.equilibrium_path  → [:defect, :defect]
+# r.payoffs           → Dict(:p1 => 1.0, :p2 => 1.0)
+```
 
-1. **Composition is the product.** The quality bar is whether a user can stack `Brinkmanship + Bayesian + Tournament` on a sequential game and get coherent semantics.
-2. **Forward and inverse are peers.** Equal compositional surface in both directions; inverse is not a sidecar.
-3. **Provenance is the substrate for explanation.** Every trait application, every inverse hypothesis, every hedge activation leaves a cited node. The LLM layer reads from this graph, never narrates from thin air.
-4. **Antifragile tools are user-invoked affordances.** The user reaches for `detect_surprise` or `discover_player` when analysis feels incomplete. They are not autonomous.
-5. **Each phase earns the next** through demonstrated usage. No Rust until Julia proves the primitives compose. No web composer until MCP proves worth.
+Both players defecting is the "rational" answer even though they'd both be better off cooperating — the famous pathology of the one-shot game.
 
-## Layout
+Now repeat the same game with tit-for-tat strategies and cooperation emerges:
+
+```julia
+r = simulate(world,
+    Dict(:p1 => TitForTat(:p2), :p2 => TitForTat(:p1));
+    horizon = 20, discount_factor = 0.95)
+# Every round is (cooperate, cooperate).
+# r.discounted_payoffs[:p1] ≈ 31.4
+```
+
+Every result carries a `provenance_chain` — a list of cited reasoning steps, each pointing to the chapter and the theoretical source. An explainer built on top can quote this chain but cannot invent.
+
+## What's in the toolkit
+
+The primitives map onto chapters of two books, one-to-one. You don't need to have read them — each primitive's docstring explains what it does — but the structure makes sense in their language:
+
+- **Avinash Dixit & Barry Nalebuff, *Thinking Strategically* (1991)** — a plain-English tour of applied game theory. The 13 chapter primitives in `strategic-jl/src/chapters/` cover the book's arc: anticipating rivals (Ch 2), seeing through strategies via dominance (Ch 3), resolving the prisoner's dilemma (Ch 4), commitment devices (Ch 5), credible threats and burned bridges (Ch 6), mixed strategies (Ch 7), brinkmanship (Ch 8), coordination and focal points (Ch 9), voting (Ch 10), bargaining (Ch 11), tournaments (Ch 12), Bayesian reasoning under private information (Ch 13).
+- **Thomas Schelling, *The Strategy of Conflict* (1960)** — the deeper theory of credibility, commitment, and focal points that Dixit & Nalebuff's chapters 5, 6, and 9 are built on. Schelling won the 2005 Nobel in economics for this.
+
+Each chapter primitive is a **trait** that composes onto any base game — so you can stack commitment + brinkmanship + a Bayesian prior on a sequential entry game and the solver resolves it without ambiguity.
+
+## Status
+
+### Working (Phase 1 — Julia core)
+
+| Area | What runs today |
+|---|---|
+| Game description | DSL macro `strategic("…")` + JGDL JSON format (both round-trip) |
+| Forward solvers | Backward induction (SPE), iterated dominance, Nash equilibrium (2×2 pure + mixed), repeated-game simulation with reciprocity strategies, voting (Condorcet), Rubinstein bargaining, Bayesian first-price auction |
+| Inverse solvers | Bayesian inference over hypothesis worlds, interactive narrowing, structural-break detection |
+| Antifragile | Surprise detection, player discovery, latent-confounder flagging, hedge portfolio |
+| Composition | Every trait registered to the dispatch-target matrix; stacked traits resolve unambiguously |
+| Tests | 155 passing, 0 failing, 0 broken. The 20-case compliance suite is the acceptance bar. |
+
+### Not yet shipped
+
+- **Phase 2 inverse extension** — workflow UI, more hypothesis generators.
+- **Phase 3 antifragile extensions** — PC-algorithm causal graph, Dirichlet-process player clustering.
+- **Phase 4 — Rust MCP server.** Skeletons exist; the goal is an LLM can reach in through Claude Desktop and reason over worlds without hallucinating.
+- **Phase 5 systems layer / Phase 6 WASM + web composer** — conditional on Phase 4 usage revealing demand.
+
+See [`roadmap.md`](./roadmap.md) for the phased plan and exit criteria.
+
+## Try it
+
+Requires **Julia 1.10+**.
+
+```bash
+git clone <this-repo>
+cd strategic-thinking
+
+# One-time: install dependencies
+julia --project=strategic-jl -e 'using Pkg; Pkg.instantiate()'
+
+# Sanity check
+julia --project=strategic-jl -e 'using Strategic; println("ok")'
+
+# Run the compliance suite — doubles as runnable examples
+julia --project=strategic-jl -e 'using Pkg; Pkg.test()'
+```
+
+The [`jgdl/compliance/tests/`](./jgdl/compliance/tests/) directory has 20 worked examples as standalone JSON files — each is a mini game with an expected solver output.
+
+## How it's organized
 
 ```
-roadmap.md                      Strategic vision, phased
-tasks.md                        Concrete per-phase checklists
-AGENTS.md                       Contracts every contributing agent must uphold
-CLAUDE.md                       Claude Code specific notes (defers to AGENTS.md)
+roadmap.md, tasks.md      Vision + what's on the checklist
+AGENTS.md                 Architectural contracts every contributor upholds
+CLAUDE.md                 Claude Code specific notes (defers to AGENTS.md)
 
 docs/
-  composition-architecture.md   Why the toolkit composes at all (the four layers)
-  trait-composition-contract.md Normative rules every trait must obey
-  glossary.md                   JGDL term and type reference
+  composition-architecture.md    Why the toolkit composes at all
+  trait-composition-contract.md  Rules every new trait must obey
+  glossary.md                    JGDL term and type reference
+  dsl-reference.md               Full DSL grammar with examples
 
-jgdl/                           Shared JSON Game Description Language
-  schema/                       JSON Schema v1.0.0 — the load-bearing contract
-  examples/                     Reference JGDL documents (includes tales/)
-  compliance/                   Cross-language compliance suite
+jgdl/
+  schema/                        JSON Schema — the serialization contract
+  examples/                      Reference worlds (includes the Tales corpus)
+  compliance/                    Cross-language compliance suite (20 cases)
 
-strategic-jl/                   Julia core engine (Phases 1–3)
-strategic-rs/                   Rust MCP server + WASM (Phase 4, 6)
-strategic-web/                  TypeScript composer + provenance viz (Phase 6)
+strategic-jl/                    Julia core engine — what runs today
+strategic-rs/                    Rust MCP server (Phase 4, scaffolding only)
+strategic-web/                   TypeScript composer (Phase 6, conditional)
 
-discussion.md                   The architectural exploration that produced this
+discussion.md                    The design discussion this project crystallizes
 ```
 
-## Status by phase
+## Going deeper
 
-| Phase | Focus | State |
-|---|---|---|
-| 0 | JGDL as the contract | schema drafted, compliance suite skeleton in place |
-| 1 | Forward toolkit (Julia) | foundation chapters (1–4) and modifiers (5–8) scaffolded |
-| 2 | Inverse toolkit | stubs only |
-| 3 | Antifragile affordances | stubs only |
-| 4 | MCP server (Rust) | workspace + crate skeletons |
-| 5 | Systems-thinking layer | not started (conditional on Phase 4 usage) |
-| 6 | WASM + web composer | TypeScript scaffold only (conditional) |
-
-## For contributors (human or agent)
-
-Before touching code, read in this order:
-
-1. `AGENTS.md` — contracts you must uphold
-2. `docs/composition-architecture.md` — why the toolkit composes
-3. `docs/trait-composition-contract.md` — rules for trait authors
-4. `roadmap.md` + `tasks.md` — what to work on next
-
-## For readers orienting themselves
-
-Start with `discussion.md` — the full architectural exploration (build-the-world toolkit, forward/inverse symmetry, antifragile extensions, systems layer) that the roadmap crystallizes.
+- **"Why is this useful?"** — see the opening of [`discussion.md`](./discussion.md).
+- **"How does composition work?"** — [`docs/composition-architecture.md`](./docs/composition-architecture.md).
+- **"How do I write a game?"** — [`docs/dsl-reference.md`](./docs/dsl-reference.md), or read any file in [`jgdl/compliance/tests/`](./jgdl/compliance/tests/).
+- **"How do I add a new trait or solver?"** — [`AGENTS.md`](./AGENTS.md) has the workflow; [`docs/trait-composition-contract.md`](./docs/trait-composition-contract.md) has the rules.
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md). The architectural contracts in [`AGENTS.md`](./AGENTS.md) are non-negotiable — please read them before opening a PR.
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md). The contracts in [`AGENTS.md`](./AGENTS.md) are non-negotiable — please read them before opening a PR. They aren't stylistic; they're what keep the explanation layer grounded and the solvers composable.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See [`LICENSE`](./LICENSE) for the full text and [`NOTICE`](./NOTICE) for attribution.
+Apache License 2.0. See [`LICENSE`](./LICENSE) for the full text and [`NOTICE`](./NOTICE) for attribution.
 
 Copyright 2026 Folarin Shonibare.

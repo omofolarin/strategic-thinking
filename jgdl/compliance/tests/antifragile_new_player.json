@@ -1,0 +1,65 @@
+{
+  "id": "antifragile_new_player",
+  "chapter": "Antifragile",
+  "concept": "Player Discovery — actions not attributable to known players",
+  "description": "Observations include an action_id whose player_id is not in the declared player set. The antifragile layer must discover a new player and attach provenance citing the originating observations.",
+  "jgdl": {
+    "version": "1.0.0",
+    "world": {
+      "id": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Player Discovery",
+        "description": "Two declared players; observations leak a third player_id.",
+        "chapter_references": ["Chapter 1", "Chapter 4"]
+      },
+      "players": [
+        { "id": "p1", "name": "Player 1", "type": "rational" },
+        { "id": "p2", "name": "Player 2", "type": "rational" }
+      ],
+      "actions": [
+        { "id": "cooperate_1", "name": "Cooperate", "player_id": "p1" },
+        { "id": "defect_1",    "name": "Defect",    "player_id": "p1" },
+        { "id": "cooperate_2", "name": "Cooperate", "player_id": "p2" },
+        { "id": "defect_2",    "name": "Defect",    "player_id": "p2" }
+      ],
+      "structure": { "type": "simultaneous" },
+      "payoffs": {
+        "type": "terminal_matrix",
+        "matrix": {
+          "cooperate_1.cooperate_2": { "p1": 3, "p2": 3 },
+          "cooperate_1.defect_2":    { "p1": 0, "p2": 5 },
+          "defect_1.cooperate_2":    { "p1": 5, "p2": 0 },
+          "defect_1.defect_2":       { "p1": 1, "p2": 1 }
+        }
+      },
+      "traits": [],
+      "initial_state": {
+        "variables": {
+          "observations": [
+            { "round": 1, "player_id": "p3", "action_taken": "intervene_3" },
+            { "round": 2, "player_id": "p3", "action_taken": "intervene_3" }
+          ]
+        },
+        "history": [],
+        "current_player": null,
+        "round": 0
+      },
+      "provenance": [
+        {
+          "operation": "initial_construction",
+          "chapter_ref": "Chapter 1",
+          "rationale": "Antifragile case: observation stream contains player_id :p3 which is not in the declared player set {:p1, :p2}. discover_players must return a DiscoveredPlayer citing the observations that birthed it.",
+          "parent_id": "",
+          "timestamp": "2026-04-24T00:00:00Z",
+          "author": "user"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "solver": "PlayerDiscovery",
+    "discovered_player_ids": ["p3"],
+    "minimum_supporting_observations": 2,
+    "rationale_must_cite": ["Chapter 1"]
+  }
+}
