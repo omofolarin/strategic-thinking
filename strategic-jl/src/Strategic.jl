@@ -43,7 +43,7 @@ include("jgdl/serialize.jl")
 include("jgdl/deserialize.jl")
 include("jgdl/validate.jl")
 
-include("dsl/macro.jl")
+include("elicitation/payoff_elicitation.jl")
 
 export
     StrategicWorld, Player, Action, State, LazyGameTree,
@@ -60,6 +60,10 @@ export
     BackwardInduction, NashEquilibrium, solve, simulate,
     # JGDL
     to_jgdl, from_jgdl, world_id, validate_jgdl, ValidationError,
+    # Elicitation (LLM-assisted payoff construction)
+    PayoffLayerEstimate, ElicitedOutcomePayoff, ElicitedPayoffMatrix,
+    to_payoff_matrix, mean_confidence, build_world_from_elicitation, elicit_layer,
+    PAYOFF_LAYERS,
     # DSL
     @strategic,
     # Inverse toolkit (Phase 2)
