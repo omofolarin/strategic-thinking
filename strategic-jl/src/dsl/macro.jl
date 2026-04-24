@@ -198,6 +198,17 @@ function strategic(text::AbstractString)::StrategicWorld
 
     isempty(players) && error("strategic DSL: no players declared")
 
+    # Validate payoff keys against declared action IDs
+    all_action_ids = Set(aid for (_, acts) in players for aid in acts)
+    for key in keys(payoffs)
+        for seg in split(string(key), ".")
+            seg == "*" && continue
+            Symbol(seg) ∉ all_action_ids &&
+                error("strategic DSL: payoff key '$key' references undeclared action '$seg'. " *
+                      "Declared actions: $(join(sort(string.(collect(all_action_ids))), ", "))")
+        end
+    end
+
     # Complete sequential order with undeclared players
     if structure_type == "sequential" && !isempty(order)
         declared = Set(order)
